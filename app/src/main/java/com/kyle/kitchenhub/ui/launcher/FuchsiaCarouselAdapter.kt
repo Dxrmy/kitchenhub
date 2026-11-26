@@ -413,6 +413,7 @@ class FuchsiaCarouselAdapter(
         val officialAlarms = SystemAlarmsRepository.getEnabledOfficialAlarms(context)
         val systemTimers = MediaBridgeService.systemTimers
         if (timers.isEmpty() && officialAlarms.isEmpty() && systemTimers.isEmpty()) {
+            b.timerRing.visibility = View.GONE
             b.activeEntriesContainer.removeAllViews()
             b.activeEntriesContainer.tag = null
             b.timerEmptyStateWrap.visibility = View.VISIBLE

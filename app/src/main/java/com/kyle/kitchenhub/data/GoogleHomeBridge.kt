@@ -29,7 +29,21 @@ object GoogleHomeBridge {
     @Volatile
     private var lastAuthAttemptMs = 0L
 
+    private fun isSdkAbiCompatible(): Boolean {
+        return runCatching {
+            kotlinx.coroutines.sync.Mutex::class.java.getDeclaredMethod(
+                "unlock\$default",
+                kotlinx.coroutines.sync.Mutex::class.java,
+                Any::class.java,
+                Int::class.javaPrimitiveType,
+                Any::class.java
+            )
+            true
+        }.getOrDefault(false)
+    }
+
     private fun getOrCreateClient(context: Context): HomeClient? {
+        if (!isSdkAbiCompatible()) return null
         client?.let { return it }
         return runCatching {
             val registry = FactoryRegistry(
