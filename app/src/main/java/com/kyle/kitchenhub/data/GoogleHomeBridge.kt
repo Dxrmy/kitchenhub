@@ -26,6 +26,8 @@ object GoogleHomeBridge {
 
     private var client: HomeClient? = null
     private var lastDevices: List<HomeDevice> = emptyList()
+    @Volatile
+    private var lastAuthAttemptMs = 0L
 
     private fun getOrCreateClient(context: Context): HomeClient? {
         client?.let { return it }
@@ -60,6 +62,9 @@ object GoogleHomeBridge {
     }
 
     suspend fun requestPermissions(context: Context): String {
+        val now = System.currentTimeMillis()
+        if (now - lastAuthAttemptMs < 3000L) return "Please wait..."
+        lastAuthAttemptMs = now
         val c = getOrCreateClient(context) ?: return "Google Home SDK unavailable on this device"
         return runCatching {
             val res = c.requestPermissions(ForcePermissionFlow.FORCE_LAUNCH)

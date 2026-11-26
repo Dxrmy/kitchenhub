@@ -672,7 +672,9 @@ object KitchenUtilityCards {
 
         fun load() {
             CoroutineScope(Dispatchers.Main).launch {
-                val devices = com.kyle.kitchenhub.data.SmartHomeRepository.fetchDevices(context)
+                val devices = runCatching {
+                    com.kyle.kitchenhub.data.SmartHomeRepository.fetchDevices(context)
+                }.getOrDefault(emptyList())
                 devicesContainer.removeAllViews()
                 footer.removeAllViews()
                 if (devices.isEmpty()) {
