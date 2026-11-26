@@ -30,6 +30,8 @@ data class KitchenConfig(
     val nightVolumeCapPercent: Int = 30,
     // Timers, Sticky Notes & Macros
     val timerPresets: String = "Pasta:10,Oven:25,Tea:3,Roast:45",
+    val quickTimerMinutes: String = "5,10,15,20",
+    val householdContacts: String = "Kyle,Mum,Dad,Home",
     val wakeWordlessAlarmStop: Boolean = true,
     val stickyFont: String = "CAVEAT", // CAVEAT, PATRICK_HAND
     val stickyHttpEnabled: Boolean = false,
@@ -77,6 +79,8 @@ data class KitchenConfig(
         put("nightVolumeCapEnabled", nightVolumeCapEnabled)
         put("nightVolumeCapPercent", nightVolumeCapPercent)
         put("timerPresets", timerPresets)
+        put("quickTimerMinutes", quickTimerMinutes)
+        put("householdContacts", householdContacts)
         put("wakeWordlessAlarmStop", wakeWordlessAlarmStop)
         put("stickyFont", stickyFont)
         put("stickyHttpEnabled", stickyHttpEnabled)
@@ -124,6 +128,8 @@ data class KitchenConfig(
             nightVolumeCapEnabled = j.optBoolean("nightVolumeCapEnabled", true),
             nightVolumeCapPercent = j.optInt("nightVolumeCapPercent", 30),
             timerPresets = j.optString("timerPresets", "Pasta:10,Oven:25,Tea:3,Roast:45"),
+            quickTimerMinutes = j.optString("quickTimerMinutes", "5,10,15,20"),
+            householdContacts = j.optString("householdContacts", "Kyle,Mum,Dad,Home"),
             wakeWordlessAlarmStop = j.optBoolean("wakeWordlessAlarmStop", true),
             stickyFont = j.optString("stickyFont", "CAVEAT"),
             stickyHttpEnabled = j.optBoolean("stickyHttpEnabled", false),

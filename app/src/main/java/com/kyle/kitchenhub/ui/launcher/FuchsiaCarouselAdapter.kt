@@ -359,10 +359,21 @@ class FuchsiaCarouselAdapter(
                 MultiTimerManager.startTimer(label, minutes)
             }
         }
-        b.btnPreset5m.setOnClickListener { startPresetTimer(it, "5m Timer", 5) }
-        b.btnPreset10m.setOnClickListener { startPresetTimer(it, "10m Timer", 10) }
-        b.btnPreset15m.setOnClickListener { startPresetTimer(it, "15m Timer", 15) }
-        b.btnPreset20m.setOnClickListener { startPresetTimer(it, "20m Timer", 20) }
+        val mins = ConfigRepository.get(context).quickTimerMinutes
+            .split(",")
+            .mapNotNull { it.trim().toIntOrNull()?.coerceIn(1, 180) }
+        val presets = listOf(
+            mins.getOrElse(0) { 5 },
+            mins.getOrElse(1) { 10 },
+            mins.getOrElse(2) { 15 },
+            mins.getOrElse(3) { 20 }
+        )
+        val btns = listOf(b.btnPreset5m, b.btnPreset10m, b.btnPreset15m, b.btnPreset20m)
+        btns.forEachIndexed { idx, btn ->
+            val m = presets[idx]
+            btn.text = "${m}m"
+            btn.setOnClickListener { startPresetTimer(it, "${m}m Timer", m) }
+        }
 
         MultiTimerManager.addListener { timers ->
             b.root.post {

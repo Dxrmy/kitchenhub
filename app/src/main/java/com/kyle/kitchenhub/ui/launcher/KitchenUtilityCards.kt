@@ -462,12 +462,13 @@ object KitchenUtilityCards {
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = (14 * d).toInt() }
         })
 
-        val contacts = listOf(
-            Triple("Kyle", "#A8C7FA", "K"),
-            Triple("Mum", "#F2B8B5", "M"),
-            Triple("Dad", "#C4EDD7", "D"),
-            Triple("Home", "#FFE082", "H")
-        )
+        val palette = listOf("#A8C7FA", "#F2B8B5", "#C4EDD7", "#FFE082", "#E8D9FF")
+        val names = com.kyle.kitchenhub.data.ConfigRepository.get(context).householdContacts
+            .split(",").map { it.trim() }.filter { it.isNotEmpty() }.take(5)
+            .ifEmpty { listOf("Kyle", "Mum", "Dad", "Home") }
+        val contacts = names.mapIndexed { i, n ->
+            Triple(n, palette[i % palette.size], n.first().uppercaseChar().toString())
+        }
         val grid = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER

@@ -184,10 +184,17 @@ class SettingsActivity : AppCompatActivity() {
                 addSlider("Pixel Shift Amplitude (px)", cfg.pixelShiftPx, 4, 10) { v ->
                     ConfigRepository.update(this) { it.copy(pixelShiftPx = v) }
                 }
-                addInfo("Night Mode Schedule", "${cfg.nightModeStartHour}:00 – 0${cfg.nightModeEndHour}:00 (Red Monochrome)")
+                addSlider("Night Mode Start Hour", cfg.nightModeStartHour, 18, 23) { v ->
+                    ConfigRepository.update(this) { it.copy(nightModeStartHour = v) }
+                }
+                addSlider("Night Mode End Hour", cfg.nightModeEndHour, 4, 10) { v ->
+                    ConfigRepository.update(this) { it.copy(nightModeEndHour = v) }
+                }
             }
             2 -> {
-                addInfo("Active ONNX Wake-Word", cfg.wakeWordModel)
+                addCycle("Active ONNX Wake-Word", listOf("hey_google.onnx", "hey_jarvis_v0.1.onnx"), cfg.wakeWordModel) { next ->
+                    ConfigRepository.update(this) { it.copy(wakeWordModel = next) }
+                }
                 addSlider("Wake-Word Threshold (%)", (cfg.wakeWordThreshold * 100).toInt(), 15, 90) { v ->
                     ConfigRepository.update(this) { it.copy(wakeWordThreshold = v / 100f) }
                 }
@@ -199,7 +206,10 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
             3 -> {
-                addInfo("Preset Timers", cfg.timerPresets)
+                addCycle("Quick Timer Presets (min)", listOf("5,10,15,20", "1,3,5,10", "5,15,30,45", "10,20,30,60"), cfg.quickTimerMinutes) { next ->
+                    ConfigRepository.update(this) { it.copy(quickTimerMinutes = next) }
+                }
+                addInfo("Household Contacts", cfg.householdContacts)
                 addToggle("Wake-Wordless Alarm Stop ('Stop'/'Snooze')", cfg.wakeWordlessAlarmStop) { b ->
                     ConfigRepository.update(this) { it.copy(wakeWordlessAlarmStop = b) }
                 }
