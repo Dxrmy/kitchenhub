@@ -513,6 +513,26 @@ class MainActivity : AppCompatActivity() {
     private val hideVolumeBarRunnable = Runnable { setBottomBarOpen(false) }
 
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        if (event.keyCode == android.view.KeyEvent.KEYCODE_MUTE ||
+            event.keyCode == 307
+        ) {
+            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
+                val nowMuted = com.kyle.kitchenhub.service.audio.MicArbiter.state !=
+                    com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
+                TactileAudioEngine.playClick()
+                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setHardwareMuted(nowMuted)
+                if (nowMuted) {
+                    com.kyle.kitchenhub.service.audio.MicArbiter.enterStateAsync(
+                        com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
+                    )
+                    android.widget.Toast.makeText(this, "Mic Muted", android.widget.Toast.LENGTH_SHORT).show()
+                } else {
+                    com.kyle.kitchenhub.service.audio.MicArbiter.exitStateToWakeWordAsync()
+                    android.widget.Toast.makeText(this, "Mic Unmuted", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+            return true
+        }
         if (::b.isInitialized && (event.keyCode == android.view.KeyEvent.KEYCODE_VOLUME_UP ||
                 event.keyCode == android.view.KeyEvent.KEYCODE_VOLUME_DOWN)
         ) {

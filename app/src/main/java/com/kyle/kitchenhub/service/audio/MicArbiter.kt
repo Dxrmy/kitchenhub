@@ -148,6 +148,10 @@ object MicArbiter {
         }
     }
 
+    fun enterStateAsync(target: MicState) {
+        scope.launch { enterState(target) }
+    }
+
     suspend fun enterState(target: MicState) = mutex.withLock {
         pauseWakeWordCallback?.invoke()
         releaseActiveRecordLocked()

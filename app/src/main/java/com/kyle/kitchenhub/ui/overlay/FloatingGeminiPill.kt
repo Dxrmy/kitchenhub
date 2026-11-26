@@ -52,6 +52,10 @@ class FloatingGeminiPill(
             currentDarkness = d
             activeInstance?.applyAmbientDarkness(d)
         }
+
+        fun setHardwareMuted(muted: Boolean) {
+            activeInstance?.applyHardwareMuted(muted)
+        }
     }
 
     private val geminiColors = intArrayOf(
@@ -191,6 +195,14 @@ class FloatingGeminiPill(
             b.geminiCookieBody.darkness = darkness
             b.geminiGlowHalo.alpha = 0.18f * (1f - darkness)
             b.ivGeminiIcon.alpha = 1f
+        }
+    }
+
+    fun applyHardwareMuted(muted: Boolean) {
+        mainHandler.post {
+            val b = binding ?: return@post
+            b.ivGeminiIcon.setColorFilter(if (muted) Color.parseColor("#FF5252") else Color.TRANSPARENT)
+            b.ivGeminiIcon.alpha = if (muted) 0.75f else 1f
         }
     }
 
