@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomBarRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <!-- Inline Expandable Slider Card (Brightness or Volume 1-10 steps + Uniform System Volumes) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomSliderCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/shade_frosted_bg"
+        app:cardCornerRadius="26dp"
+        app:cardElevation="16dp"
+        app:strokeColor="#1FFFFFFF"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="22dp"
+            android:paddingVertical="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/ivBottomSliderIcon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="14dp"
+                    android:src="@drawable/ic_volume_up_rounded"
+                    app:tint="@color/m3_primary" />
+
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/bottomInlineSlider"
+                    style="@style/Widget.Material3Expressive.Slider.Large"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:stepSize="1"
+                    android:value="6"
+                    android:valueFrom="1"
+                    android:valueTo="10"
+                    app:labelBehavior="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExpandVolumes"
+                    style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="Expand all volumes"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    android:visibility="gone"
+                    app:backgroundTint="@color/m3_surface_container_high"
+                    app:icon="@drawable/ic_keyboard_arrow_up_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="22dp"
+                    app:iconTint="@color/m3_on_surface" />
+            </LinearLayout>
+
+            <!-- Expandable System Volumes (Exact same width, height, length, and padding as standard sound bar) -->
+            <LinearLayout
+                android:id="@+id/extraVolumesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="14dp"
+                        android:src="@drawable/ic_alarm_rounded"
+                        app:tint="@color/m3_primary" />
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderExtraAlarm"
+                        style="@style/Widget.Material3Expressive.Slider.Large"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:stepSize="1"
+                        android:value="8"
+                        android:valueFrom="1"
+                        android:valueTo="10"
+                        app:labelBehavior="gone" />
+
+                    <Space
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="10dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="14dp"
+                        android:src="@drawable/ic_notifications_off_rounded"
+                        app:tint="@color/m3_primary" />
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sliderExtraNotif"
+                        style="@style/Widget.Material3Expressive.Slider.Large"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:stepSize="1"
+                        android:value="6"
+                        android:valueFrom="1"
+                        android:valueTo="10"
+                        app:labelBehavior="gone" />
+
+                    <Space
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="10dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Bottom Control Bar matching Apps Drawer Visual Aesthetic -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomControlBarCard"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        app:cardBackgroundColor="@color/shade_frosted_bg"
+        app:cardElevation="20dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.KitchenHub.BottomDrawer28"
+        app:strokeColor="#1FFFFFFF"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="28dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarBrightness"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:contentDescription="Brightness"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_brightness_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarVolume"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:contentDescription="Volume"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_volume_up_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarDnd"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:contentDescription="Do Not Disturb"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_notifications_off_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarAlarms"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:contentDescription="Alarms"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_alarm_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarApps"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:contentDescription="Apps"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_apps_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBarSettings"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:contentDescription="Settings"
+                app:backgroundTint="@color/m3_surface_container"
+                app:cornerRadius="20dp"
+                app:icon="@drawable/ic_settings_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="26dp"
+                app:iconTint="@color/m3_on_surface" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="28dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/dialogNoteCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rotation="-1.2"
+        app:cardBackgroundColor="@color/note_paper_yellow"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="16dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="28dp">
+
+            <TextView
+                android:id="@+id/tvDialogNoteHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Sticky Notes"
+                android:textColor="@color/note_ink_primary"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+
+            <EditText
+                android:id="@+id/etDialogNoteInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@android:color/transparent"
+                android:gravity="top|start"
+                android:hint="Tap Speak or type a kitchen note..."
+                android:inputType="textCapSentences|textMultiLine"
+                android:minLines="3"
+                android:textColor="@color/note_ink_primary"
+                android:textColorHint="#7A524B38"
+                android:textSize="26sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTypeNote"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Note"
+                    android:textAllCaps="false"
+                    android:textColor="@color/note_ink_primary"
+                    app:backgroundTint="@color/note_chip_bg"
+                    app:cornerRadius="999dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTypeReminder"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Reminder"
+                    android:textAllCaps="false"
+                    android:textColor="@color/note_ink_primary"
+                    app:backgroundTint="@color/note_chip_bg"
+                    app:cornerRadius="999dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTypeAuthor"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="+ Author"
+                    android:textAllCaps="false"
+                    android:textColor="@color/note_ink_primary"
+                    app:backgroundTint="@color/note_chip_bg"
+                    app:cornerRadius="999dp" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/etAuthorName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@android:color/transparent"
+                android:hint="Author name (e.g. Grandma)"
+                android:inputType="textCapWords|textPersonName"
+                android:maxLength="24"
+                android:singleLine="true"
+                android:textColor="@color/note_ink_primary"
+                android:textColorHint="#7A524B38"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end|center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDialogSpeak"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Speak"
+                    android:textAllCaps="false"
+                    android:textColor="@color/note_ink_primary"
+                    app:backgroundTint="@color/note_chip_bg"
+                    app:cornerRadius="999dp"
+                    app:icon="@drawable/ic_mic_rounded"
+                    app:iconTint="@color/note_ink_primary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDialogClear"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:layout_marginEnd="8dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:text="Clear"
+                    android:textAllCaps="false"
+                    android:textColor="@color/note_ink_primary"
+                    app:backgroundTint="@color/note_chip_bg"
+                    app:cornerRadius="999dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDialogPin"
+                    style="@style/Widget.Material3Expressive.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="46dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingHorizontal="22dp"
+                    android:text="Pin Note"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    app:backgroundTint="@color/note_ink_primary"
+                    app:cornerRadius="999dp"
+                    app:icon="@drawable/ic_check_rounded"
+                    app:iconTint="#FFFFFF" />
+            </LinearLayout>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</FrameLayout>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/m3_surface">
+
+    <com.kyle.kitchenhub.AmbientBackdropView
+        android:id="@+id/ambientBackdrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Pixel Sparkle Layer: sits BEHIND interactive cards & buttons -->
+    <com.kyle.kitchenhub.core.ui.PixelSparkleView
+        android:id="@+id/sparkleOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Main Foreground Stage (scales subtly 0.975 -> 1.0 during LightRevealScrim wake) -->
+    <FrameLayout
+        android:id="@+id/foregroundStage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/mainPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <LinearLayout
+            android:id="@+id/topChromeColumn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:orientation="vertical">
+
+            <!-- Fuchsia OS Top Bar with 1:1 Sliding Hidden-Left Clock Tab -->
+            <LinearLayout
+                android:id="@+id/topBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="32dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="8dp">
+
+                <FrameLayout
+                    android:id="@+id/tabViewport"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:clipChildren="true"
+                    android:clipToPadding="false">
+
+                    <LinearLayout
+                        android:id="@+id/tabStrip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/tabClock"
+                            style="@style/Widget.Material3Expressive.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="44dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:singleLine="true"
+                            android:text="Clock"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
+                            app:cornerRadius="999dp"
+                            app:icon="@drawable/ic_schedule_rounded"
+                            app:iconGravity="textStart"
+                            app:iconPadding="8dp"
+                            app:iconSize="18dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/tab0"
+                            style="@style/Widget.Material3Expressive.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:singleLine="true"
+                            android:text="Your morning"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
+                            app:cornerRadius="999dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/tab1"
+                            style="@style/Widget.Material3Expressive.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:singleLine="true"
+                            android:text="Media"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
+                            app:cornerRadius="999dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/tab2"
+                            style="@style/Widget.Material3Expressive.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:layout_marginEnd="8dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:singleLine="true"
+                            android:text="Communicate"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
+                            app:cornerRadius="999dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/tab3"
+                            style="@style/Widget.Material3Expressive.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="44dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:minHeight="0dp"
+                            android:paddingHorizontal="20dp"
+                            android:paddingTop="0dp"
+                            android:paddingBottom="0dp"
+                            android:singleLine="true"
+                            android:text="Home control"
+                            android:textAllCaps="false"
+                            android:textSize="17sp"
+                            app:cornerRadius="999dp" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <ImageView
+                    android:id="@+id/ivTopNotifIcon"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_marginEnd="14dp"
+                    android:clickable="true"
+                    android:contentDescription="Active Notification"
+                    android:focusable="true"
+                    android:src="@drawable/ic_notifications_rounded"
+                    android:visibility="gone"
+                    app:tint="@color/m3_primary" />
+
+                <TextView
+                    android:id="@+id/topClockText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFeatureSettings="tnum"
+                    android:text="12:00"
+                    android:textColor="@color/m3_on_surface"
+                    android:textSize="19sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bottom App Tray Pill Handle -->
+        <FrameLayout
+            android:id="@+id/bottomPillWrap"
+            android:layout_width="180dp"
+            android:layout_height="36dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:paddingBottom="6dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <View
+                android:id="@+id/bottomPillBar"
+                android:layout_width="72dp"
+                android:layout_height="5dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_pill_handle" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <!-- Floating Stacked Ambient Notifications (never pushes topBar down) -->
+    <LinearLayout
+        android:id="@+id/notificationStackContainer"
+        android:layout_width="520dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="14dp"
+        android:orientation="vertical" />
+
+    <!-- Scrim behind Bottom Bar & App Tray -->
+    <View
+        android:id="@+id/shadeScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="@color/shade_scrim"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/bottomBarInclude"
+        layout="@layout/view_bottom_quick_bar" />
+
+    <FrameLayout
+        android:id="@+id/appTrayHost"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Pixel LightRevealScrim Wake & Sleep Layer -->
+    <com.kyle.kitchenhub.core.ui.LightRevealScrimView
+        android:id="@+id/lightRevealScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+</FrameLayout>

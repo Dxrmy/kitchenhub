@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardNowPlaying"
+    android:layout_width="460dp"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="#211C30"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="0dp">
+
+    <com.kyle.kitchenhub.core.ui.BentoRippleHostLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Full-bleed Album Art Background -->
+        <ImageView
+            android:id="@+id/ivAlbumPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_album_placeholder"
+            android:padding="88dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_music_note_rounded" />
+
+        <ImageView
+            android:id="@+id/ivAlbumArt"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <!-- TurbulenceNoiseShader over album cover art -->
+        <com.kyle.kitchenhub.core.ui.TurbulenceNoiseShaderView
+            android:id="@+id/turbulenceShader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Readability Gradient Scrim over Full-Bleed Art -->
+        <View
+            android:id="@+id/albumArtScrim"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#880B0E14" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="28dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/badgeNowPlaying"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#44000000"
+                app:cardCornerRadius="999dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <TextView
+                    android:id="@+id/tvNowPlayingBadge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.06"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="5dp"
+                    android:text="NOW PLAYING"
+                    android:textColor="@color/m3_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <Space
+                android:layout_width="1dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvMediaTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="2"
+                android:shadowRadius="8"
+                android:text="Nothing Playing"
+                android:textColor="#FFFFFF"
+                android:textSize="32sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvMediaArtist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="20dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:shadowColor="#99000000"
+                android:shadowDx="0"
+                android:shadowDy="1"
+                android:shadowRadius="6"
+                android:text="Start YouTube Music or pair Bluetooth"
+                android:textColor="#D3E3FD"
+                android:textSize="17sp" />
+
+            <!-- Adaptive Playback Bar with Elapsed & Remaining Time -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/playbackBarCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="#4D0B0E14"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="14dp">
+
+                    <TextView
+                        android:id="@+id/tvTimeElapsed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:fontFeatureSettings="tnum"
+                        android:text="0:00"
+                        android:textColor="#E2E6EE"
+                        android:textSize="13sp" />
+
+                    <com.google.android.material.progressindicator.LinearProgressIndicator
+                        android:id="@+id/mediaProgress"
+                        style="@style/Widget.Material3Expressive.LinearProgressIndicator.Wavy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="100"
+                        android:progress="0"
+                        app:indicatorColor="@color/m3_primary"
+                        app:trackColor="#38FFFFFF"
+                        app:trackCornerRadius="999dp"
+                        app:trackThickness="6dp"
+                        app:waveAmplitude="3dp"
+                        app:waveSpeed="14dp"
+                        app:wavelength="18dp"
+                        app:wavelengthDeterminate="18dp" />
+
+                    <TextView
+                        android:id="@+id/tvTimeRemaining"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:fontFeatureSettings="tnum"
+                        android:text="-0:00"
+                        android:textColor="#C4C7D0"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- M3 Expressive Connected Button Group (Shuffle | Prev | Play/Pause | Next | Loop) -->
+            <com.google.android.material.button.MaterialButtonGroup
+                android:id="@+id/mediaTransportGroup"
+                style="@style/Widget.Material3Expressive.MaterialButtonGroup.Connected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMediaShuffle"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="0.8"
+                    android:contentDescription="Shuffle"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_shuffle_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="22dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMediaPrev"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:contentDescription="Previous"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_skip_prev_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="28dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMediaPlayPause"
+                    style="@style/Widget.Material3Expressive.Button"
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1.5"
+                    android:contentDescription="Play or Pause"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_play_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="34dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMediaNext"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="1"
+                    android:contentDescription="Next"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_skip_next_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="28dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnMediaLoop"
+                    style="@style/Widget.Material3Expressive.Button.TonalButton"
+                    android:layout_width="0dp"
+                    android:layout_height="68dp"
+                    android:layout_weight="0.8"
+                    android:contentDescription="Loop"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@drawable/ic_repeat_rounded"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="22dp" />
+            </com.google.android.material.button.MaterialButtonGroup>
+        </LinearLayout>
+    </com.kyle.kitchenhub.core.ui.BentoRippleHostLayout>
+</com.google.android.material.card.MaterialCardView>

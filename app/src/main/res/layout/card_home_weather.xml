@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardWeatherHero"
+    android:layout_width="450dp"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="0dp">
+
+    <com.kyle.kitchenhub.core.ui.BentoRippleHostLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <com.kyle.kitchenhub.core.ui.WeatherEffectsShaderView
+        android:id="@+id/weatherHeroShader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.32" />
+
+    <LinearLayout
+        android:id="@+id/weatherHeroBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_weather_hero_day"
+        android:orientation="vertical"
+        android:padding="28dp">
+
+        <TextView
+            android:id="@+id/tvGreeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Good morning, Kyle"
+            android:textColor="#E2ECFF"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvWeatherLocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Solihull, UK • Clear"
+            android:textColor="#B5CCF2"
+            android:textSize="16sp" />
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvHeroTemp"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFeatureSettings="tnum"
+                    android:includeFontPadding="false"
+                    android:text="12°"
+                    android:textColor="#FFFFFF"
+                    android:textSize="84sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/ivHeroWeather"
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:src="@drawable/ic_partly_cloudy_rounded" />
+            </LinearLayout>
+
+            <com.google.android.material.loadingindicator.LoadingIndicator
+                android:id="@+id/weatherLoadingIndicator"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_gravity="center"
+                app:indicatorColor="@color/m3_primary" />
+        </FrameLayout>
+
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Bottom 3-Day Forecast Strip -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/weather_strip_scrim"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <LinearLayout
+                android:id="@+id/forecastStrip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="14dp" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+    </com.kyle.kitchenhub.core.ui.BentoRippleHostLayout>
+</com.google.android.material.card.MaterialCardView>

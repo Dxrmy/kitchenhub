@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardTimerRoot"
+    android:layout_width="360dp"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/m3_surface_container"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
+
+    <com.kyle.kitchenhub.core.ui.BentoRippleHostLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <!-- Card Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_timer_rounded"
+                app:tint="@color/m3_primary" />
+
+            <TextView
+                android:id="@+id/tvTimersCardTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Timers and Alarms"
+                android:textColor="@color/m3_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAlarmHeaderAdd"
+                style="@style/Widget.Material3Expressive.Button.IconButton.Tonal"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:contentDescription="Set Alarm"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                app:backgroundTint="@color/m3_surface_container_high"
+                app:icon="@drawable/ic_add_rounded"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="20dp"
+                app:iconTint="@color/m3_primary" />
+        </LinearLayout>
+
+        <!-- Center Content Host: Either Empty State ("Tap to set an alarm") OR Live Active Timers + Turned-On Official Alarms -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginVertical="12dp"
+            android:layout_weight="1">
+
+            <!-- Empty State when 0 timers AND 0 turned-on official alarms -->
+            <FrameLayout
+                android:id="@+id/timerEmptyStateWrap"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true">
+
+                <com.google.android.material.progressindicator.CircularProgressIndicator
+                    android:id="@+id/timerRing"
+                    style="@style/Widget.Material3Expressive.CircularProgressIndicator.Wavy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:max="100"
+                    android:progress="0"
+                    app:indicatorColor="@color/m3_primary"
+                    app:indicatorSize="132dp"
+                    app:trackColor="@color/m3_surface_container_high"
+                    app:trackCornerRadius="5dp"
+                    app:trackThickness="6dp"
+                    app:waveAmplitude="3dp"
+                    app:waveSpeed="14dp"
+                    app:wavelength="18dp"
+                    app:wavelengthDeterminate="18dp" />
+
+                <LinearLayout
+                    android:layout_width="142dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:layout_marginBottom="6dp"
+                        android:src="@drawable/ic_alarm_rounded"
+                        app:tint="@color/m3_primary" />
+
+                    <TextView
+                        android:id="@+id/tvEmptyAlarmPrompt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="1.08"
+                        android:text="Tap to set an alarm"
+                        android:textColor="@color/m3_on_surface"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <!-- Live Active Timers & Turned-On Official Device Alarms List -->
+            <ScrollView
+                android:id="@+id/activeEntriesScroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/activeEntriesContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </FrameLayout>
+
+        <!-- Quick Timer Preset Chips -->
+        <LinearLayout
+            android:id="@+id/timerPresetRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreset5m"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:text="5m"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="999dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreset10m"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:text="10m"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="999dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreset15m"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:text="15m"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="999dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPreset20m"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:paddingHorizontal="6dp"
+                android:singleLine="true"
+                android:text="20m"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                app:cornerRadius="999dp" />
+        </LinearLayout>
+    </LinearLayout>
+    </com.kyle.kitchenhub.core.ui.BentoRippleHostLayout>
+</com.google.android.material.card.MaterialCardView>

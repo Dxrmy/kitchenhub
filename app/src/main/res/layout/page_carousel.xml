@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.kyle.kitchenhub.core.ui.NestedScrollableHost xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/carouselRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingStart="32dp"
+        android:paddingTop="84dp"
+        android:paddingEnd="64dp"
+        android:paddingBottom="56dp" />
+</com.kyle.kitchenhub.core.ui.NestedScrollableHost>

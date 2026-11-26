@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardBluetoothRoot"
+    android:layout_width="360dp"
+    android:layout_height="match_parent"
+    app:cardBackgroundColor="@color/m3_surface_container"
+    app:cardCornerRadius="32dp"
+    app:cardElevation="4dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="22dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_bluetooth_rounded"
+                app:tint="@color/m3_primary" />
+
+            <TextView
+                android:id="@+id/tvBtCardTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="Bluetooth"
+                android:textColor="@color/m3_on_surface"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBtScan"
+                style="@style/Widget.Material3Expressive.Button.TonalButton"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="12dp"
+                android:text="Scan"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="999dp" />
+        </LinearLayout>
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sliderMediaVolume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:stepSize="1"
+            android:valueFrom="1"
+            android:valueTo="10"
+            android:value="5" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="8dp"
+            android:layout_weight="1"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvBtPairedHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Paired Devices"
+                    android:textColor="@color/m3_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/btPairedContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="14dp"
+                    android:orientation="vertical" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvBtAvailableHeader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Available Devices"
+                        android:textColor="@color/m3_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvBtScanStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Idle"
+                        android:textColor="@color/m3_on_surface_variant"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btAvailableContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="vertical" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

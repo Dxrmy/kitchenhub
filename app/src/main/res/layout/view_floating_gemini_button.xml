@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:padding="10dp">
+
+    <!-- Subtle Material 3 Expressive Cookie Tonal Halo (visible on tap) -->
+    <com.kyle.kitchenhub.ui.overlay.M3CookieShapeView
+        android:id="@+id/geminiGlowHalo"
+        android:layout_width="78dp"
+        android:layout_height="78dp"
+        android:layout_gravity="center"
+        android:alpha="0.18" />
+
+    <!-- Main Material 3 Expressive 9-Lobe Cookie Cutter Button -->
+    <FrameLayout
+        android:id="@+id/geminiFloatingCard"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:elevation="6dp">
+
+        <com.kyle.kitchenhub.ui.overlay.M3CookieShapeView
+            android:id="@+id/geminiCookieBody"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/ivGeminiIcon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="center"
+            android:contentDescription="Gemini Assistant"
+            android:src="@drawable/ic_app_gemini" />
+    </FrameLayout>
+</FrameLayout>

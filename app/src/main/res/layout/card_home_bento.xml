@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="horizontal">
+
+    <!-- Left Column: Full-Height Weather Widget -->
+    <include
+        android:id="@+id/weatherInclude"
+        layout="@layout/card_home_weather"
+        android:layout_width="450dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Right Column: Sticky Notes (Top) + Timers & Alarms (Bottom) -->
+    <LinearLayout
+        android:layout_width="380dp"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+
+        <!-- Top-Right: Sticky Notes Board Widget -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardStickyBoard"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="16dp"
+            android:layout_weight="0.44"
+            app:cardBackgroundColor="@color/m3_surface_container"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="4dp"
+            app:strokeWidth="0dp">
+
+            <com.kyle.kitchenhub.core.ui.BentoRippleHostLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/ic_app_stickynote" />
+
+                    <TextView
+                        android:id="@+id/tvStickyBoardTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sticky Notes"
+                        android:textColor="@color/m3_on_surface"
+                        android:textSize="17sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnBoardAddNote"
+                        style="@style/Widget.Material3Expressive.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="34dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:minWidth="0dp"
+                        android:paddingHorizontal="12dp"
+                        android:text="New Note"
+                        android:textAllCaps="false"
+                        android:textSize="12sp"
+                        app:cornerRadius="999dp"
+                        app:icon="@drawable/ic_mic_rounded"
+                        app:iconGravity="textStart"
+                        app:iconPadding="6dp"
+                        app:iconSize="16dp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <TextView
+                        android:id="@+id/tvStickyEmptyHint"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="No pinned notes yet • Tap New Note to add one"
+                        android:textColor="@color/m3_on_surface_variant"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                    <LinearLayout
+                        android:id="@+id/stickyMiniRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!-- Mini Note 1 -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/miniNoteCard1"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="-8dp"
+                            android:layout_weight="1"
+                            android:rotation="-2.5"
+                            app:cardBackgroundColor="#FFF3B0"
+                            app:cardCornerRadius="18dp"
+                            app:cardElevation="4dp"
+                            app:strokeWidth="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteAuthor1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:singleLine="true"
+                                    android:text="Kyle"
+                                    android:textColor="@color/note_ink_secondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteBody1"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_weight="1"
+                                    android:ellipsize="end"
+                                    android:maxLines="4"
+                                    android:textColor="@color/note_ink_primary"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Mini Note 2 -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/miniNoteCard2"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="-8dp"
+                            android:layout_weight="1"
+                            android:rotation="1.8"
+                            app:cardBackgroundColor="#FFD9E2"
+                            app:cardCornerRadius="18dp"
+                            app:cardElevation="5dp"
+                            app:strokeWidth="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteAuthor2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:singleLine="true"
+                                    android:text="Grandma"
+                                    android:textColor="@color/note_ink_secondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteBody2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_weight="1"
+                                    android:ellipsize="end"
+                                    android:maxLines="4"
+                                    android:textColor="@color/note_ink_primary"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Mini Note 3 -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/miniNoteCard3"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:rotation="-1.5"
+                            app:cardBackgroundColor="#D7E8FF"
+                            app:cardCornerRadius="18dp"
+                            app:cardElevation="6dp"
+                            app:strokeWidth="0dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:orientation="vertical"
+                                android:padding="12dp">
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteAuthor3"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:singleLine="true"
+                                    android:text="Reminder"
+                                    android:textColor="@color/note_ink_secondary"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/tvMiniNoteBody3"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_weight="1"
+                                    android:ellipsize="end"
+                                    android:maxLines="4"
+                                    android:textColor="@color/note_ink_primary"
+                                    android:textSize="15sp" />
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Overflow Badge (+N) -->
+                        <TextView
+                            android:id="@+id/tvMiniNoteOverflow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:background="@drawable/bg_pill_handle"
+                            android:backgroundTint="@color/m3_surface_container_high"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="6dp"
+                            android:text="+4"
+                            android:textColor="@color/m3_on_surface"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+            </com.kyle.kitchenhub.core.ui.BentoRippleHostLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bottom-Right: Timers & Alarms Widget -->
+        <include
+            android:id="@+id/timerInclude"
+            layout="@layout/card_home_timer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.56" />
+    </LinearLayout>
+</LinearLayout>
+</FrameLayout>

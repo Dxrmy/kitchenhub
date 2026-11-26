@@ -1,0 +1,26 @@
+# Build outputs
+build/
+*.apk
+*.aab
+.gradle/
+.kotlin/
+
+# Local config / secrets
+local.properties
+*.keystore
+*.jks
+client_secret*.json
+google-services.json
+
+# Google Home Android SDK (licensed artifacts, download from developers.home.google.com)
+local-maven/
+
+# IDE / OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+captures/
+
+# Scratch
+verify-launch.png
