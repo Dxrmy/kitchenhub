@@ -153,7 +153,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         seedDefaultBackdrop()
-        com.kyle.kitchenhub.data.GoogleHomeBridge.registerActivity(this)
         startForegroundService(Intent(this, KitchenBackgroundService::class.java))
 
         b = ActivityMainBinding.inflate(layoutInflater)
