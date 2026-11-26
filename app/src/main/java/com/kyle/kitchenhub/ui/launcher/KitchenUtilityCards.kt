@@ -343,104 +343,168 @@ object KitchenUtilityCards {
         renderList()
     }
 
-    fun buildKitchenConverterCard(context: Context, inStack: Boolean = false): View = wrapCard(context, 360, !inStack) { root ->
+    fun buildKitchenConverterCard(context: Context, inStack: Boolean = false): View = wrapCard(context, 370, !inStack) { root ->
         val d = context.resources.displayMetrics.density
         val tf = FontCache.plusJakarta(context)
 
         root.addView(TextView(context).apply {
-            text = "Kitchen Converter"
+            text = "Kitchen Calculator"
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 20f
+            textSize = 19f
             setTextColor(Color.parseColor("#EEF3FC"))
         })
 
-        // Oven temperature: °C <-> °F <-> Gas Mark
-        var tempC = 180
-        val tvTemp = TextView(context).apply {
+        var mode = 0 // 0=Temp, 1=Weight, 2=Volume, 3=Scale
+        var value = 180f
+        var scaleMult = 1.0f
+
+        val modeRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
+        }
+        val tvMain = TextView(context).apply {
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 19f
+            textSize = 18f
             fontFeatureSettings = "tnum"
             setTextColor(Color.parseColor("#A8C7FA"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (14 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (10 * d).toInt() }
         }
-        fun refreshTemp() {
-            val f = ((tempC * 9f / 5f) + 32f).roundToInt()
-            val gas = when {
-                tempC <= 135 -> "Gas 1"
-                tempC <= 150 -> "Gas 2"
-                tempC <= 165 -> "Gas 3"
-                tempC <= 180 -> "Gas 4"
-                tempC <= 190 -> "Gas 5"
-                tempC <= 205 -> "Gas 6"
-                tempC <= 220 -> "Gas 7"
-                else -> "Gas 8"
-            }
-            tvTemp.text = "${tempC}°C  •  ${f}°F  •  $gas"
-        }
-        refreshTemp()
-        root.addView(tvTemp)
-
-        val tempRow = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
-        }
-        listOf(-10, +10).forEach { delta ->
-            tempRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-                text = if (delta < 0) "-10°C" else "+10°C"
-                isAllCaps = false
-                cornerRadius = (999 * d).toInt()
-                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
-                    if (delta < 0) marginEnd = (8 * d).toInt()
-                }
-                setOnClickListener {
-                    TactileAudioEngine.playClick()
-                    tempC = (tempC + delta).coerceIn(100, 260)
-                    refreshTemp()
-                }
-            })
-        }
-        root.addView(tempRow)
-
-        // Weight / Volume: g <-> oz <-> cups
-        var grams = 250
-        val tvWeight = TextView(context).apply {
+        val tvSub = TextView(context).apply {
             typeface = tf
-            paint.isFakeBoldText = true
-            textSize = 19f
+            textSize = 13.5f
             fontFeatureSettings = "tnum"
             setTextColor(Color.parseColor("#C4EDD7"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (20 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (4 * d).toInt() }
         }
-        fun refreshWeight() {
-            val oz = String.format(Locale.US, "%.1f", grams / 28.3495f)
-            val cups = String.format(Locale.US, "%.2f", grams / 240f)
-            tvWeight.text = "${grams}g  •  ${oz}oz  •  ${cups} cups"
-        }
-        refreshWeight()
-        root.addView(tvWeight)
-
-        val weightRow = LinearLayout(context).apply {
+        val stepRow1 = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (10 * d).toInt() }
         }
-        listOf(-50, +50).forEach { delta ->
-            weightRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-                text = if (delta < 0) "-50g" else "+50g"
+        val stepRow2 = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
+        }
+
+        fun refresh() {
+            when (mode) {
+                0 -> {
+                    val c = value.roundToInt().coerceIn(50, 280)
+                    val f = ((c * 9f / 5f) + 32f).roundToInt()
+                    val fan = (c - 20).coerceAtLeast(40)
+                    val gas = when {
+                        c <= 135 -> "Gas 1"; c <= 150 -> "Gas 2"; c <= 165 -> "Gas 3"
+                        c <= 180 -> "Gas 4"; c <= 190 -> "Gas 5"; c <= 205 -> "Gas 6"
+                        c <= 220 -> "Gas 7"; else -> "Gas 8"
+                    }
+                    tvMain.text = "${c}°C  •  ${f}°F  •  $gas"
+                    tvSub.text = "Fan oven: ${fan}°C"
+                }
+                1 -> {
+                    val g = value.roundToInt().coerceIn(1, 5000)
+                    val oz = String.format(Locale.US, "%.2f", g / 28.3495f)
+                    val lb = String.format(Locale.US, "%.2f", g / 453.592f)
+                    val kg = String.format(Locale.US, "%.2f", g / 1000f)
+                    tvMain.text = "${g}g  •  ${oz}oz"
+                    tvSub.text = "${lb}lb  •  ${kg}kg"
+                }
+                2 -> {
+                    val ml = value.roundToInt().coerceIn(1, 5000)
+                    val flOz = String.format(Locale.US, "%.1f", ml / 29.5735f)
+                    val cups = String.format(Locale.US, "%.2f", ml / 240f)
+                    val tbsp = String.format(Locale.US, "%.1f", ml / 15f)
+                    val tsp = String.format(Locale.US, "%.1f", ml / 5f)
+                    tvMain.text = "${ml}ml  •  ${flOz} fl oz  •  ${cups} cups"
+                    tvSub.text = "${tbsp} tbsp  •  ${tsp} tsp"
+                }
+                else -> {
+                    val base = value.roundToInt().coerceIn(1, 5000)
+                    val scaled = String.format(Locale.US, "%.1f", base * scaleMult)
+                    tvMain.text = "$base × ${scaleMult}x = $scaled"
+                    tvSub.text = "Tap multiplier below to scale ingredients"
+                }
+            }
+        }
+
+        fun rebuildSteppers() {
+            stepRow1.removeAllViews()
+            stepRow2.removeAllViews()
+            val deltas = when (mode) {
+                0 -> listOf(-10, -5, -1, 1, 5, 10)
+                1, 2 -> listOf(-50, -10, -1, 1, 10, 50)
+                else -> listOf(-25, -5, -1, 1, 5, 25)
+            }
+            deltas.forEachIndexed { idx, delta ->
+                val targetRow = if (idx < 3) stepRow1 else stepRow2
+                targetRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                    text = if (delta > 0) "+$delta" else "$delta"
+                    isAllCaps = false
+                    textSize = 12f
+                    minWidth = 0
+                    setPadding(0, 0, 0, 0)
+                    cornerRadius = (999 * d).toInt()
+                    layoutParams = LinearLayout.LayoutParams(0, (36 * d).toInt(), 1f).apply {
+                        if (idx % 3 < 2) marginEnd = (6 * d).toInt()
+                    }
+                    setOnClickListener {
+                        TactileAudioEngine.playClick()
+                        value = (value + delta).coerceAtLeast(1f)
+                        refresh()
+                    }
+                })
+            }
+            if (mode == 3) {
+                stepRow2.removeAllViews()
+                listOf(0.5f, 1.0f, 1.5f, 2.0f, 3.0f).forEachIndexed { i, mult ->
+                    stepRow2.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                        text = "${mult}x"
+                        isAllCaps = false
+                        textSize = 11.5f
+                        minWidth = 0
+                        setPadding(0, 0, 0, 0)
+                        cornerRadius = (999 * d).toInt()
+                        layoutParams = LinearLayout.LayoutParams(0, (36 * d).toInt(), 1f).apply {
+                            if (i < 4) marginEnd = (4 * d).toInt()
+                        }
+                        setOnClickListener {
+                            TactileAudioEngine.playClick()
+                            scaleMult = mult
+                            refresh()
+                        }
+                    })
+                }
+            }
+        }
+
+        listOf("Temp", "Weight", "Vol", "Scale").forEachIndexed { idx, lbl ->
+            modeRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                text = lbl
                 isAllCaps = false
+                textSize = 12f
+                minWidth = 0
+                setPadding(0, 0, 0, 0)
                 cornerRadius = (999 * d).toInt()
-                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
-                    if (delta < 0) marginEnd = (8 * d).toInt()
+                layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
+                    if (idx < 3) marginEnd = (6 * d).toInt()
                 }
                 setOnClickListener {
                     TactileAudioEngine.playClick()
-                    grams = (grams + delta).coerceIn(25, 2000)
-                    refreshWeight()
+                    mode = idx
+                    value = when (idx) { 0 -> 180f; 1 -> 250f; 2 -> 240f; else -> 100f }
+                    rebuildSteppers()
+                    refresh()
                 }
             })
         }
-        root.addView(weightRow)
+
+        root.addView(modeRow)
+        root.addView(tvMain)
+        root.addView(tvSub)
+        root.addView(stepRow1)
+        root.addView(stepRow2)
+        rebuildSteppers()
+        refresh()
     }
 
     fun buildHouseholdContactsCard(context: Context, inStack: Boolean = false): View = wrapCard(context, 360, !inStack) { root ->

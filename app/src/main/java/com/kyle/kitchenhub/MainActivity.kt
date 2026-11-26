@@ -512,23 +512,38 @@ class MainActivity : AppCompatActivity() {
 
     private val hideVolumeBarRunnable = Runnable { setBottomBarOpen(false) }
 
+    private var muteHoldTriggered = false
+    private val muteHoldRunnable = Runnable {
+        muteHoldTriggered = true
+        val nowMuted = com.kyle.kitchenhub.service.audio.MicArbiter.state !=
+            com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
+        TactileAudioEngine.playClick()
+        com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setHardwareMuted(nowMuted)
+        if (nowMuted) {
+            com.kyle.kitchenhub.service.audio.MicArbiter.enterStateAsync(
+                com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
+            )
+            android.widget.Toast.makeText(this, "Mic Muted", android.widget.Toast.LENGTH_SHORT).show()
+        } else {
+            com.kyle.kitchenhub.service.audio.MicArbiter.exitStateToWakeWordAsync()
+            android.widget.Toast.makeText(this, "Mic Unmuted", android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
         if (event.keyCode == android.view.KeyEvent.KEYCODE_MUTE ||
             event.keyCode == 307
         ) {
-            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                val nowMuted = com.kyle.kitchenhub.service.audio.MicArbiter.state !=
-                    com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
-                TactileAudioEngine.playClick()
-                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setHardwareMuted(nowMuted)
-                if (nowMuted) {
-                    com.kyle.kitchenhub.service.audio.MicArbiter.enterStateAsync(
-                        com.kyle.kitchenhub.service.audio.MicState.HARDWARE_MUTED
-                    )
-                    android.widget.Toast.makeText(this, "Mic Muted", android.widget.Toast.LENGTH_SHORT).show()
-                } else {
-                    com.kyle.kitchenhub.service.audio.MicArbiter.exitStateToWakeWordAsync()
-                    android.widget.Toast.makeText(this, "Mic Unmuted", android.widget.Toast.LENGTH_SHORT).show()
+            when (event.action) {
+                android.view.KeyEvent.ACTION_DOWN -> {
+                    if (event.repeatCount == 0) {
+                        muteHoldTriggered = false
+                        idleHandler.removeCallbacks(muteHoldRunnable)
+                        idleHandler.postDelayed(muteHoldRunnable, 520L)
+                    }
+                }
+                android.view.KeyEvent.ACTION_UP -> {
+                    idleHandler.removeCallbacks(muteHoldRunnable)
                 }
             }
             return true
