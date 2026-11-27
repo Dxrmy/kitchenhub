@@ -47,6 +47,24 @@ class FloatingGeminiPill(
         @Volatile
         private var currentDarkness: Float = 0f
 
+        @Volatile
+        private var isOnLauncher: Boolean = false
+
+        @Volatile
+        var hardwareMuted: Boolean = false
+            private set
+
+        private val muteListeners = mutableListOf<(Boolean) -> Unit>()
+
+        fun addMuteListener(listener: (Boolean) -> Unit) {
+            muteListeners.add(listener)
+            listener(hardwareMuted)
+        }
+
+        fun removeMuteListener(listener: (Boolean) -> Unit) {
+            muteListeners.remove(listener)
+        }
+
         fun setAmbientDarkness(darkness: Float) {
             val d = darkness.coerceIn(0f, 1f)
             currentDarkness = d
@@ -54,7 +72,20 @@ class FloatingGeminiPill(
         }
 
         fun setHardwareMuted(muted: Boolean) {
+            hardwareMuted = muted
             activeInstance?.applyHardwareMuted(muted)
+            muteListeners.forEach { it(muted) }
+        }
+
+        fun setLauncherVisible(onLauncher: Boolean) {
+            isOnLauncher = onLauncher
+            activeInstance?.applyLauncherVisibility(onLauncher)
+        }
+    }
+
+    private fun applyLauncherVisibility(onLauncher: Boolean) {
+        mainHandler.post {
+            binding?.root?.visibility = if (onLauncher) View.GONE else View.VISIBLE
         }
     }
 
@@ -72,6 +103,7 @@ class FloatingGeminiPill(
         val screenH = themedCtx.resources.displayMetrics.heightPixels
 
         val b = ViewFloatingGeminiButtonBinding.inflate(LayoutInflater.from(themedCtx))
+        b.root.visibility = if (isOnLauncher) View.GONE else View.VISIBLE
         b.ivGeminiIcon.setImageResource(R.drawable.ic_app_gemini)
         b.geminiGlowHalo.lobes = 7
         b.geminiGlowHalo.isHaloMode = true

@@ -89,6 +89,7 @@ object KitchenUtilityCards {
         onRefreshBanner: () -> Unit,
         inStack: Boolean = false
     ): View = when (key) {
+        "TALK_TO_GEMINI" -> buildTalkToGeminiCard(context, inStack)
         "SHOPPING_LIST" -> buildShoppingListCard(context, inStack)
         "KITCHEN_CONVERTER" -> buildKitchenConverterCard(context, inStack)
         "HOUSEHOLD_CONTACTS" -> buildHouseholdContactsCard(context, inStack)
@@ -132,6 +133,191 @@ object KitchenUtilityCards {
         col.addView(top)
         col.addView(bot)
         return col
+    }
+
+    fun buildTalkToGeminiCard(context: Context, inStack: Boolean = false): View {
+        val d = context.resources.displayMetrics.density
+        val tf = FontCache.plusJakarta(context)
+
+        val card = MaterialCardView(context).apply {
+            layoutParams = if (!inStack) {
+                ViewGroup.MarginLayoutParams((270 * d).toInt(), ViewGroup.LayoutParams.MATCH_PARENT).apply {
+                    marginEnd = (16 * d).toInt()
+                }
+            } else {
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+            }
+            radius = 32f * d
+            cardElevation = 8f * d
+            strokeWidth = (1.5f * d).toInt()
+            strokeColor = Color.parseColor("#7389A8FF")
+            setCardBackgroundColor(Color.TRANSPARENT)
+        }
+
+        val rippleHost = BentoRippleHostLayout(context).apply {
+            layoutParams = ViewGroup.LayoutParams(-1, -1)
+        }
+
+        val content = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            layoutParams = ViewGroup.LayoutParams(-1, -1)
+            setPadding((20 * d).toInt(), (18 * d).toInt(), (20 * d).toInt(), (18 * d).toInt())
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TL_BR,
+                intArrayOf(
+                    Color.parseColor("#1B213E"),
+                    Color.parseColor("#271C45"),
+                    Color.parseColor("#16243D")
+                )
+            )
+        }
+
+        val iconBadgeSize = (86 * d).toInt()
+        val haloView = com.kyle.kitchenhub.ui.overlay.M3CookieShapeView(context).apply {
+            lobes = 7
+            isHaloMode = true
+            alpha = 0.22f
+            layoutParams = android.widget.FrameLayout.LayoutParams(iconBadgeSize, iconBadgeSize, Gravity.CENTER)
+        }
+        val cookieView = com.kyle.kitchenhub.ui.overlay.M3CookieShapeView(context).apply {
+            lobes = 9
+            isHaloMode = false
+            layoutParams = android.widget.FrameLayout.LayoutParams((68 * d).toInt(), (68 * d).toInt(), Gravity.CENTER)
+        }
+        val geminiIcon = ImageView(context).apply {
+            setImageResource(R.drawable.ic_app_gemini)
+            layoutParams = android.widget.FrameLayout.LayoutParams((36 * d).toInt(), (36 * d).toInt(), Gravity.CENTER)
+        }
+        val orbHost = android.widget.FrameLayout(context).apply {
+            clipChildren = false
+            clipToPadding = false
+            layoutParams = LinearLayout.LayoutParams(iconBadgeSize, iconBadgeSize).apply {
+                bottomMargin = (14 * d).toInt()
+            }
+            addView(haloView)
+            addView(cookieView)
+            addView(geminiIcon)
+        }
+
+        val statusSubtitle = TextView(context).apply {
+            text = "Ask anything, set timers, or control your home"
+            typeface = tf
+            textSize = 13.5f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#B8C7E8"))
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
+        }
+
+        val handler = android.os.Handler(android.os.Looper.getMainLooper())
+        var animRunning = false
+        var phase = 0f
+        val animStep = object : Runnable {
+            override fun run() {
+                if (!animRunning) return
+                phase = (phase + 0.066f) % 22.0f
+                cookieView.rotation = (phase / 22.0f) * 360f
+                val s = 1.0f + 0.04f * kotlin.math.sin((phase / 2.8f) * 2.0 * Math.PI).toFloat()
+                haloView.scaleX = s
+                haloView.scaleY = s
+                handler.postDelayed(this, 66L)
+            }
+        }
+        val resetHalo = Runnable {
+            haloView.animate().alpha(0.22f).scaleX(1f).scaleY(1f).setDuration(300L).start()
+        }
+
+        val muteListener: (Boolean) -> Unit = { muted ->
+            handler.post {
+                geminiIcon.setColorFilter(if (muted) Color.parseColor("#FF5252") else Color.TRANSPARENT)
+                geminiIcon.alpha = if (muted) 0.75f else 1f
+                statusSubtitle.text = if (muted) "Microphone muted • Tap to ask" else "Ask anything, set timers, or control your home"
+                statusSubtitle.setTextColor(Color.parseColor(if (muted) "#FCA5A5" else "#B8C7E8"))
+            }
+        }
+
+        card.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                animRunning = true
+                handler.postDelayed(animStep, 66L)
+                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.addMuteListener(muteListener)
+            }
+            override fun onViewDetachedFromWindow(v: View) {
+                animRunning = false
+                handler.removeCallbacks(animStep)
+                handler.removeCallbacks(resetHalo)
+                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.removeMuteListener(muteListener)
+            }
+        })
+
+        fun triggerGemini() {
+            TactileAudioEngine.playClick()
+            handler.removeCallbacks(resetHalo)
+            geminiIcon.animate().rotationBy(90f).setDuration(260L).start()
+            haloView.animate().alpha(0.55f).scaleX(1.12f).scaleY(1.12f).setDuration(220L).start()
+            handler.postDelayed(resetHalo, 1600L)
+            val duck = com.kyle.kitchenhub.data.ConfigRepository.get(context).bargeInDuckPercent
+            MicArbiter.handoffToGemini(context, duck) {
+                context.sendBroadcast(
+                    Intent(com.kyle.kitchenhub.service.wakeword.KitchenBackgroundService.ACTION_SHOW_MOCK_GEMINI)
+                        .setPackage(context.packageName)
+                )
+            }
+        }
+
+        content.addView(TextView(context).apply {
+            text = "GEMINI"
+            typeface = tf
+            paint.isFakeBoldText = true
+            textSize = 11f
+            letterSpacing = 0.08f
+            setTextColor(Color.parseColor("#C2D6FF"))
+            setPadding((12 * d).toInt(), (5 * d).toInt(), (12 * d).toInt(), (5 * d).toInt())
+            background = GradientDrawable().apply {
+                cornerRadius = 999f * d
+                setColor(Color.parseColor("#334273"))
+                setStroke((1 * d).toInt(), Color.parseColor("#4D9BB8FF"))
+            }
+            layoutParams = LinearLayout.LayoutParams(-2, -2).apply {
+                gravity = Gravity.START
+            }
+        })
+
+        content.addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(1, 0, 1f) })
+        content.addView(orbHost)
+
+        content.addView(TextView(context).apply {
+            text = "Talk to Gemini"
+            typeface = tf
+            paint.isFakeBoldText = true
+            textSize = 21f
+            gravity = Gravity.CENTER
+            setTextColor(Color.parseColor("#FFFFFF"))
+        })
+
+        content.addView(statusSubtitle)
+
+        content.addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(1, 0, 1f) })
+
+        content.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+            text = "Ask Gemini"
+            isAllCaps = false
+            setIconResource(R.drawable.ic_mic_rounded)
+            iconSize = (18 * d).toInt()
+            iconPadding = (8 * d).toInt()
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            setBackgroundColor(Color.parseColor("#A8C7FA"))
+            setTextColor(Color.parseColor("#0D1526"))
+            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#0D1526"))
+            cornerRadius = (999 * d).toInt()
+            layoutParams = LinearLayout.LayoutParams(-1, (48 * d).toInt())
+            setOnClickListener { triggerGemini() }
+        })
+
+        card.setOnClickListener { triggerGemini() }
+        rippleHost.addView(content)
+        card.addView(rippleHost)
+        return card
     }
 
     private fun buildQuickActionCard(

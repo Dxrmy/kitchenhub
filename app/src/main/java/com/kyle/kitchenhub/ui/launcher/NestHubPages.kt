@@ -138,6 +138,7 @@ class NestHubPagerAdapter(
 
         val cards = when (position) {
             1 -> buildList {
+                add(FuchsiaCardItem.CustomCard("TALK_TO_GEMINI"))
                 add(FuchsiaCardItem.HomeBento)
                 add(FuchsiaCardItem.StackedCustomPair("SHOPPING_LIST", "KITCHEN_CONVERTER", 370))
                 if (com.kyle.kitchenhub.data.ConfigRepository.get(context).icalUrl.isNotBlank()) {

@@ -2,7 +2,7 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardNowPlaying"
-    android:layout_width="330dp"
+    android:layout_width="360dp"
     android:layout_height="match_parent"
     app:cardBackgroundColor="#211C30"
     app:cardCornerRadius="32dp"

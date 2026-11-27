@@ -821,6 +821,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         isActivityResumed = true
+        com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setLauncherVisible(true)
         if (com.kyle.kitchenhub.service.audio.MicArbiter.state ==
             com.kyle.kitchenhub.service.audio.MicState.STICKY_NOTE_DICTATING
         ) {
@@ -834,6 +835,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         isActivityResumed = false
+        com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setLauncherVisible(false)
         super.onPause()
     }
 
