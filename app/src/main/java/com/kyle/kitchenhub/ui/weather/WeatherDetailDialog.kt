@@ -101,11 +101,16 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
             setTextColor(Color.parseColor("#EEF3FC"))
             layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
         }
-        val btnClose = MaterialButton(context, null, com.google.android.material.R.attr.materialButtonOutlinedStyle).apply {
-            text = "Close"
-            isAllCaps = false
+        val btnClose = MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+            contentDescription = "Close"
+            setIconResource(R.drawable.ic_close_rounded)
+            iconSize = dp(20)
+            iconPadding = 0
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            setPadding(0, 0, 0, 0)
+            insetTop = 0; insetBottom = 0; insetLeft = 0; insetRight = 0
             cornerRadius = dp(999)
-            setTextColor(Color.parseColor("#A8C7FA"))
+            layoutParams = LinearLayout.LayoutParams(dp(38), dp(38))
             setOnClickListener { TactileAudioEngine.playClick(); dismiss() }
         }
         topBar.addView(tvCity)
@@ -312,7 +317,7 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         // 5. Sun & Wind Row
         val grid2 = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, dp(130)).apply { topMargin = dp(14) }
+            layoutParams = LinearLayout.LayoutParams(-1, dp(146)).apply { topMargin = dp(14) }
         }
         grid2.addView(buildSunTile(w, tf))
         grid2.addView(buildWindTile(w, tf))
@@ -506,7 +511,7 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
             setPadding(dp(18), dp(14), dp(18), dp(14))
         }
         box.addView(sectionHeader("Sun", tf))
-        box.addView(SunArcView(context).apply {
+        box.addView(SunArcView(context, w.sunrise, w.sunset).apply {
             layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
         })
         val timesRow = LinearLayout(context).apply { orientation = LinearLayout.HORIZONTAL }
@@ -543,7 +548,7 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
             text = "${w.windKmh} km/h"
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 32f
+            textSize = 28f
             gravity = Gravity.CENTER
             setTextColor(Color.parseColor("#FFFFFF"))
             layoutParams = LinearLayout.LayoutParams(-2, -2).apply { topMargin = dp(6); bottomMargin = dp(4) }
@@ -742,7 +747,11 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         }
     }
 
-    private class SunArcView(context: Context) : View(context) {
+    private class SunArcView(
+        context: Context,
+        private val sunrise: String,
+        private val sunset: String
+    ) : View(context) {
         private val arcPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             strokeWidth = 2f * resources.displayMetrics.density
@@ -754,12 +763,34 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
             color = Color.parseColor("#FFD54F")
         }
         private val rect = RectF()
+
+        private fun parseMinutes(hhmm: String): Int? {
+            val parts = hhmm.trim().split(":")
+            if (parts.size < 2) return null
+            val h = parts[0].toIntOrNull() ?: return null
+            val m = parts[1].toIntOrNull() ?: return null
+            return h * 60 + m
+        }
+
         override fun onDraw(canvas: Canvas) {
             val w = width.toFloat(); val h = height.toFloat()
             if (w <= 0f || h <= 0f) return
             rect.set(w * 0.12f, h * 0.25f, w * 0.88f, h * 1.45f)
             canvas.drawArc(rect, 195f, 150f, false, arcPaint)
-            canvas.drawCircle(w * 0.35f, h * 0.45f, 7f * resources.displayMetrics.density, dotPaint)
+            val riseMin = parseMinutes(sunrise)
+            val setMin = parseMinutes(sunset)
+            if (riseMin != null && setMin != null && setMin > riseMin) {
+                val cal = java.util.Calendar.getInstance()
+                val nowMin = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+                if (nowMin in riseMin..setMin) {
+                    val frac = (nowMin - riseMin).toFloat() / (setMin - riseMin).toFloat()
+                    val angleDeg = 195f + frac * 150f
+                    val rad = Math.toRadians(angleDeg.toDouble())
+                    val cx = rect.centerX() + (rect.width() * 0.5f) * cos(rad).toFloat()
+                    val cy = rect.centerY() + (rect.height() * 0.5f) * sin(rad).toFloat()
+                    canvas.drawCircle(cx, cy, 7f * resources.displayMetrics.density, dotPaint)
+                }
+            }
         }
     }
 

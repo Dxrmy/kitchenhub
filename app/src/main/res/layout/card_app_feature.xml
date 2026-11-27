@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:lineSpacingMultiplier="1.2"
-            android:text="Browse kitchen playlists, mixes &amp; radio stations"
+            android:text="Browse playlists, mixes &amp; radio stations"
             android:textColor="@color/m3_on_surface_variant"
             android:textSize="15sp" />
 

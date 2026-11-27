@@ -198,9 +198,9 @@ object KitchenUtilityCards {
             listCol.removeAllViews()
             if (items.isEmpty()) {
                 listCol.addView(TextView(context).apply {
-                    text = "Nothing on the list yet. Add an item or tap Speak."
+                    text = "No items yet • Add or speak"
                     typeface = tf
-                    textSize = 14f
+                    textSize = 13.5f
                     setTextColor(Color.parseColor("#8B95A7"))
                     setPadding(0, (8 * d).toInt(), 0, 0)
                 })
@@ -355,7 +355,7 @@ object KitchenUtilityCards {
         val tf = FontCache.plusJakarta(context)
 
         root.addView(TextView(context).apply {
-            text = "Kitchen Calculator"
+            text = "Unit Converter"
             typeface = tf
             paint.isFakeBoldText = true
             textSize = 17.5f
@@ -962,7 +962,7 @@ object KitchenUtilityCards {
                             layoutParams = LinearLayout.LayoutParams(-2, -2).apply { bottomMargin = (6 * d).toInt() }
                         })
                         addView(TextView(context).apply {
-                            text = "Control your lights, plugs, speakers, and thermostats right from your kitchen display."
+                            text = "Control your lights, plugs, speakers, and thermostats right from your display."
                             typeface = tf
                             textSize = 13.5f
                             setTextColor(Color.parseColor("#8EA4C8"))

@@ -448,20 +448,27 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        var dndOn = false
-        bb.btnBarDnd.setOnClickListener {
-            TactileAudioEngine.playClick()
-            dndOn = !dndOn
+        val nmInit = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        var dndOn = nmInit.currentInterruptionFilter != NotificationManager.INTERRUPTION_FILTER_ALL
+        fun syncDndVisual() {
             bb.btnBarDnd.backgroundTintList = ColorStateList.valueOf(
-                ContextCompat.getColor(this, if (dndOn) R.color.m3_primary else Color.TRANSPARENT)
+                if (dndOn) ContextCompat.getColor(this, R.color.m3_primary) else Color.TRANSPARENT
             )
             bb.btnBarDnd.iconTint = ColorStateList.valueOf(
                 ContextCompat.getColor(this, if (dndOn) R.color.m3_on_primary else R.color.m3_on_surface)
             )
+        }
+        syncDndVisual()
+        bb.btnBarDnd.setOnClickListener {
+            TactileAudioEngine.playClick()
             val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            if (nm.isNotificationPolicyAccessGranted) {
-                nm.setInterruptionFilter(if (dndOn) NotificationManager.INTERRUPTION_FILTER_ALARMS else NotificationManager.INTERRUPTION_FILTER_ALL)
+            if (!nm.isNotificationPolicyAccessGranted) {
+                android.widget.Toast.makeText(this, "Grant Do Not Disturb access in Settings", android.widget.Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+            dndOn = !dndOn
+            syncDndVisual()
+            nm.setInterruptionFilter(if (dndOn) NotificationManager.INTERRUPTION_FILTER_ALARMS else NotificationManager.INTERRUPTION_FILTER_ALL)
         }
 
         bb.btnBarAlarms.setOnClickListener {

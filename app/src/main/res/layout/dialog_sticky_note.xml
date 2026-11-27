@@ -37,7 +37,7 @@
                 android:layout_marginTop="12dp"
                 android:background="@android:color/transparent"
                 android:gravity="top|start"
-                android:hint="Tap Speak or type a kitchen note..."
+                android:hint="Tap Speak or type a note..."
                 android:inputType="textCapSentences|textMultiLine"
                 android:minLines="3"
                 android:textColor="@color/note_ink_primary"

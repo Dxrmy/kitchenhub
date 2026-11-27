@@ -149,7 +149,7 @@ class NestHubPagerAdapter(
                     "com.google.android.apps.youtube.music",
                     R.drawable.ic_app_ytmusic,
                     "YouTube Music",
-                    "Browse kitchen playlists & mixes",
+                    "Browse playlists & mixes",
                     ""
                 ) { launchPkg("com.google.android.apps.youtube.music", "YouTube Music") }
                 val ytCard = FuchsiaCardItem.FeatureCard(
@@ -182,14 +182,14 @@ class NestHubPagerAdapter(
                     "com.whatsapp",
                     R.drawable.ic_app_whatsapp,
                     "WhatsApp",
-                    "Linked companion messages & kitchen calls",
+                    "Linked companion messages & calls",
                     "Open WhatsApp"
                 ) { launchPkg("com.whatsapp", "WhatsApp") },
                 FuchsiaCardItem.FeatureCard(
                     "com.google.android.keep",
                     R.drawable.ic_app_keep,
                     "Google Keep",
-                    "Shared family grocery & kitchen shopping list",
+                    "Shared family grocery & shopping list",
                     "Open Keep"
                 ) { launchPkg("com.google.android.keep", "Google Keep") }
             )
