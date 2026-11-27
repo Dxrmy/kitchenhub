@@ -441,10 +441,11 @@ object KitchenUtilityCards {
                     text = if (delta > 0) "+$delta" else "$delta"
                     isAllCaps = false
                     textSize = 12f
+                    maxLines = 1
                     minWidth = 0
                     setPadding(0, 0, 0, 0)
                     cornerRadius = (999 * d).toInt()
-                    layoutParams = LinearLayout.LayoutParams(0, (36 * d).toInt(), 1f).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, (40 * d).toInt(), 1f).apply {
                         if (idx % 3 < 2) marginEnd = (6 * d).toInt()
                     }
                     setOnClickListener {
@@ -482,10 +483,11 @@ object KitchenUtilityCards {
                 text = lbl
                 isAllCaps = false
                 textSize = 12f
+                maxLines = 1
                 minWidth = 0
                 setPadding(0, 0, 0, 0)
                 cornerRadius = (999 * d).toInt()
-                layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
+                layoutParams = LinearLayout.LayoutParams(0, (38 * d).toInt(), 1f).apply {
                     if (idx < 3) marginEnd = (6 * d).toInt()
                 }
                 setOnClickListener {

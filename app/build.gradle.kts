@@ -1,3 +1,13 @@
+import com.android.build.api.instrumentation.AsmClassVisitorFactory
+import com.android.build.api.instrumentation.ClassContext
+import com.android.build.api.instrumentation.ClassData
+import com.android.build.api.instrumentation.FramesComputationMode
+import com.android.build.api.instrumentation.InstrumentationParameters
+import com.android.build.api.instrumentation.InstrumentationScope
+import org.objectweb.asm.ClassVisitor
+import org.objectweb.asm.Label
+import org.objectweb.asm.Opcodes
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -39,10 +49,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-        freeCompilerArgs += "-Xskip-metadata-version-check"
-    }
     buildFeatures {
         viewBinding = true
         buildConfig = true
@@ -54,6 +60,13 @@ android {
         resources {
             excludes += listOf("META-INF/INDEX.LIST", "META-INF/*.kotlin_module")
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
     }
 }
 
@@ -70,6 +83,69 @@ dependencies {
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.2")
     implementation("com.google.android.gms:play-services-home:17.12.0")
     implementation("com.google.android.gms:play-services-home-types:17.12.0")
+}
+
+abstract class MutexDefaultShimFactory : AsmClassVisitorFactory<InstrumentationParameters.None> {
+    override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor {
+        return object : ClassVisitor(Opcodes.ASM9, nextClassVisitor) {
+            private var hasUnlockDefault = false
+            override fun visitMethod(
+                access: Int, name: String?, descriptor: String?, signature: String?, exceptions: Array<out String>?
+            ) = super.visitMethod(access, name, descriptor, signature, exceptions).also {
+                if (name == "unlock\$default") hasUnlockDefault = true
+            }
+            override fun visitEnd() {
+                if (!hasUnlockDefault) {
+                    val mv = super.visitMethod(
+                        Opcodes.ACC_PUBLIC or Opcodes.ACC_STATIC or Opcodes.ACC_SYNTHETIC,
+                        "unlock\$default",
+                        "(Lkotlinx/coroutines/sync/Mutex;Ljava/lang/Object;ILjava/lang/Object;)V",
+                        null,
+                        null
+                    )
+                    mv.visitCode()
+                    val l0 = Label()
+                    mv.visitVarInsn(Opcodes.ALOAD, 3)
+                    mv.visitJumpInsn(Opcodes.IFNULL, l0)
+                    mv.visitTypeInsn(Opcodes.NEW, "java/lang/UnsupportedOperationException")
+                    mv.visitInsn(Opcodes.DUP)
+                    mv.visitLdcInsn("Super calls with default arguments not supported in this target, function: unlock")
+                    mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/UnsupportedOperationException", "<init>", "(Ljava/lang/String;)V", false)
+                    mv.visitInsn(Opcodes.ATHROW)
+                    mv.visitLabel(l0)
+                    val l1 = Label()
+                    mv.visitVarInsn(Opcodes.ILOAD, 2)
+                    mv.visitInsn(Opcodes.ICONST_1)
+                    mv.visitInsn(Opcodes.IAND)
+                    mv.visitJumpInsn(Opcodes.IFEQ, l1)
+                    mv.visitInsn(Opcodes.ACONST_NULL)
+                    mv.visitVarInsn(Opcodes.ASTORE, 1)
+                    mv.visitLabel(l1)
+                    mv.visitVarInsn(Opcodes.ALOAD, 0)
+                    mv.visitVarInsn(Opcodes.ALOAD, 1)
+                    mv.visitMethodInsn(Opcodes.INVOKEINTERFACE, "kotlinx/coroutines/sync/Mutex", "unlock", "(Ljava/lang/Object;)V", true)
+                    mv.visitInsn(Opcodes.RETURN)
+                    mv.visitMaxs(3, 4)
+                    mv.visitEnd()
+                }
+                super.visitEnd()
+            }
+        }
+    }
+
+    override fun isInstrumentable(classData: ClassData): Boolean {
+        return classData.className == "kotlinx.coroutines.sync.Mutex"
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        variant.instrumentation.transformClassesWith(
+            MutexDefaultShimFactory::class.java,
+            InstrumentationScope.ALL
+        ) {}
+        variant.instrumentation.setAsmFramesComputationMode(FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS)
+    }
 }
 
 configurations.all {
