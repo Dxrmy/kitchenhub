@@ -73,7 +73,8 @@ object KitchenUtilityCards {
         val content = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             layoutParams = ViewGroup.LayoutParams(-1, -1)
-            setPadding((20 * d).toInt(), (16 * d).toInt(), (20 * d).toInt(), (16 * d).toInt())
+            val vPad = if (heightMatchParent) (16 * d).toInt() else (13 * d).toInt()
+            setPadding((18 * d).toInt(), vPad, (18 * d).toInt(), vPad)
         }
         builder(content)
         rippleHost.addView(content)
@@ -143,16 +144,19 @@ object KitchenUtilityCards {
     ): View = wrapCard(context, 360, !inStack) { root ->
         val d = context.resources.displayMetrics.density
         val tf = FontCache.plusJakarta(context)
+        root.gravity = Gravity.CENTER_VERTICAL
         root.addView(TextView(context).apply {
-            text = title; typeface = tf; paint.isFakeBoldText = true; textSize = 19f
+            text = title; typeface = tf; paint.isFakeBoldText = true; textSize = 18f
             setTextColor(Color.parseColor("#EEF3FC"))
         })
         root.addView(TextView(context).apply {
-            text = subtitle; typeface = tf; textSize = 13.5f
+            text = subtitle; typeface = tf; textSize = 13f
             setTextColor(Color.parseColor("#9EB0CE"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (4 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                topMargin = (4 * d).toInt()
+                bottomMargin = (14 * d).toInt()
+            }
         })
-        root.addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(1, 0, 1f) })
         root.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
             text = btnText; isAllCaps = false; cornerRadius = (999 * d).toInt()
             layoutParams = LinearLayout.LayoutParams(-1, (44 * d).toInt())
@@ -354,7 +358,7 @@ object KitchenUtilityCards {
             text = "Kitchen Calculator"
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 19f
+            textSize = 17.5f
             setTextColor(Color.parseColor("#EEF3FC"))
         })
 
@@ -364,30 +368,34 @@ object KitchenUtilityCards {
 
         val modeRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
         }
         val tvMain = TextView(context).apply {
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 18f
+            textSize = 16.5f
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
             fontFeatureSettings = "tnum"
             setTextColor(Color.parseColor("#A8C7FA"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (10 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
         }
         val tvSub = TextView(context).apply {
             typeface = tf
-            textSize = 13.5f
+            textSize = 12.5f
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
             fontFeatureSettings = "tnum"
             setTextColor(Color.parseColor("#C4EDD7"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (4 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (2 * d).toInt() }
         }
         val stepRow1 = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (10 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
         }
         val stepRow2 = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (5 * d).toInt() }
         }
 
         fun refresh() {
@@ -448,7 +456,7 @@ object KitchenUtilityCards {
                     minWidth = 0
                     setPadding(0, 0, 0, 0)
                     cornerRadius = (999 * d).toInt()
-                    layoutParams = LinearLayout.LayoutParams(0, (40 * d).toInt(), 1f).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
                         if (idx % 3 < 2) marginEnd = (6 * d).toInt()
                     }
                     setOnClickListener {
@@ -468,7 +476,7 @@ object KitchenUtilityCards {
                         minWidth = 0
                         setPadding(0, 0, 0, 0)
                         cornerRadius = (999 * d).toInt()
-                        layoutParams = LinearLayout.LayoutParams(0, (36 * d).toInt(), 1f).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
                             if (i < 4) marginEnd = (4 * d).toInt()
                         }
                         setOnClickListener {

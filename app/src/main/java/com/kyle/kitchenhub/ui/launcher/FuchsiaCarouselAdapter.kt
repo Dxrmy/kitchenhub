@@ -645,6 +645,11 @@ class FuchsiaCarouselAdapter(
         MediaBridgeService.addListener { st ->
             b.root.post {
                 b.turbulenceShader.setCloudsActive(st.isPlaying)
+                b.tvNowPlayingBadge.text = when {
+                    st.isPlaying -> "NOW PLAYING"
+                    st.title != "Nothing Playing" -> "PAUSED"
+                    else -> "IDLE"
+                }
                 b.tvMediaTitle.text = st.title
                 b.tvMediaArtist.text = st.artist
                 val pct = (MediaBridgeService.getProgressFraction() * 100f).toInt().coerceIn(0, 100)

@@ -109,9 +109,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="No pinned notes yet • Tap New Note to add one"
+                        android:text="No pinned notes yet"
                         android:textColor="@color/m3_on_surface_variant"
-                        android:textSize="14sp"
+                        android:textSize="13.5sp"
                         android:visibility="gone" />
 
                     <LinearLayout

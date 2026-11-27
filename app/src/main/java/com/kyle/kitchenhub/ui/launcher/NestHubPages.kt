@@ -137,11 +137,13 @@ class NestHubPagerAdapter(
         if (holder !is CarouselPageHolder) return
 
         val cards = when (position) {
-            1 -> listOf(
-                FuchsiaCardItem.HomeBento,
-                FuchsiaCardItem.StackedCustomPair("SHOPPING_LIST", "KITCHEN_CONVERTER", 370),
-                FuchsiaCardItem.CalendarStandBy
-            )
+            1 -> buildList {
+                add(FuchsiaCardItem.HomeBento)
+                add(FuchsiaCardItem.StackedCustomPair("SHOPPING_LIST", "KITCHEN_CONVERTER", 370))
+                if (com.kyle.kitchenhub.data.ConfigRepository.get(context).icalUrl.isNotBlank()) {
+                    add(FuchsiaCardItem.CalendarStandBy)
+                }
+            }
             2 -> {
                 val ytMusicCard = FuchsiaCardItem.FeatureCard(
                     "com.google.android.apps.youtube.music",
