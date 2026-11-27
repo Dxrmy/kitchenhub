@@ -164,7 +164,7 @@ class StandByClockContainer @JvmOverloads constructor(
     })
 
     init {
-        setBackgroundColor(Color.parseColor("#08090C"))
+        setBackgroundColor(Color.TRANSPARENT)
         shiftWrapper.addView(fullClock, LayoutParams(-1, -1))
         splitLayout.addView(splitClock, LinearLayout.LayoutParams(0, -1, 1f))
         splitLayout.addView(splitWidgetCard, LinearLayout.LayoutParams(0, -1, 1f))
@@ -221,7 +221,6 @@ class StandByClockContainer @JvmOverloads constructor(
         val alpha = 1f - offset.coerceIn(0f, 1f)
         fullClock.bgAlpha = alpha
         splitClock.bgAlpha = alpha
-        background?.alpha = (alpha * 255f).toInt().coerceIn(0, 255)
     }
 
     private fun dismissLockStickyNote(noteId: Long, card: View) {

@@ -91,13 +91,13 @@ class StandByClockView @JvmOverloads constructor(
 
         if (!compactMode) {
             val d = resources.displayMetrics.density
-            // t = 0: black squircle below the top tab bar over the shared AmbientBackdropView
+            // t = 0: black squircle aligned with carousel cards (84dp below top bar, 32dp sides, 32dp radius)
             // t = 1: black squircle expands outward to cover everything black
             val t = bgDarkness.coerceIn(0f, 1f)
-            val topInset = (68f * (1f - t) - 24f * t) * d
-            val sideInset = (22f * (1f - t) - 24f * t) * d
-            val bottomInset = (22f * (1f - t) - 24f * t) * d
-            val corner = (36f * (1f - t)).coerceAtLeast(0f) * d
+            val topInset = (84f * (1f - t) - 24f * t) * d
+            val sideInset = (32f * (1f - t) - 24f * t) * d
+            val bottomInset = (32f * (1f - t) - 24f * t) * d
+            val corner = (32f * (1f - t)).coerceAtLeast(0f) * d
 
             squircleRect.set(sideInset, topInset, w - sideInset, h - bottomInset)
 
@@ -107,14 +107,9 @@ class StandByClockView @JvmOverloads constructor(
                 canvas.drawRoundRect(squircleRect, corner, corner, squircleFillPaint)
             }
 
-            val borderAlpha = (bgAlpha * (95f * (1f - t))).toInt().coerceIn(0, 255)
+            val borderAlpha = (bgAlpha * (46f * (1f - t))).toInt().coerceIn(0, 255)
             if (borderAlpha > 0) {
-                maskBorderPaint.color = Color.argb(
-                    borderAlpha,
-                    Color.red(c1),
-                    Color.green(c1),
-                    Color.blue(c1)
-                )
+                maskBorderPaint.color = Color.argb(borderAlpha, 255, 255, 255)
                 canvas.drawRoundRect(squircleRect, corner, corner, maskBorderPaint)
             }
         }
