@@ -116,22 +116,12 @@ object GoogleHomeBridge {
     }
 
     suspend fun toggleDevice(context: Context, deviceId: String, turnOn: Boolean): Boolean {
-        val dev = lastDevices.firstOrNull { it.id.id == deviceId } ?: return false
-        val onOff = resolveOnOff(dev) ?: return false
-        return runCatching {
-            if (turnOn) onOff.on() else onOff.off()
-            true
-        }.getOrDefault(false)
+        // Stubbed out for now: update UI/local state without actuating physical Google Home hardware.
+        return lastDevices.any { it.id.id == deviceId }
     }
 
     suspend fun setThermostat(context: Context, deviceId: String, tempC: Int): Boolean {
-        val dev = lastDevices.firstOrNull { it.id.id == deviceId } ?: return false
-        val therm = resolveThermostat(dev) ?: return false
-        return runCatching {
-            val cur = (therm.occupiedHeatingSetpoint ?: 2100) / 100
-            val diff = ((tempC - cur) * 10).toByte()
-            therm.setpointRaiseLower(ThermostatTrait.SetpointRaiseLowerModeEnum.Heat, diff)
-            true
-        }.getOrDefault(false)
+        // Stubbed out for now: update UI/local state without actuating physical Google Home hardware.
+        return lastDevices.any { it.id.id == deviceId }
     }
 }

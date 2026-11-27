@@ -64,8 +64,9 @@ object KitchenUtilityCards {
             }
             radius = 32f * d
             cardElevation = 4f * d
-            strokeWidth = 0
-            setCardBackgroundColor(Color.parseColor("#181D27"))
+            strokeWidth = (1 * d).toInt()
+            strokeColor = Color.parseColor("#2A3242")
+            setCardBackgroundColor(Color.parseColor("#171C26"))
         }
         val rippleHost = BentoRippleHostLayout(context).apply {
             layoutParams = ViewGroup.LayoutParams(-1, -1)
@@ -331,9 +332,30 @@ object KitchenUtilityCards {
         val d = context.resources.displayMetrics.density
         val tf = FontCache.plusJakarta(context)
         root.gravity = Gravity.CENTER_VERTICAL
-        root.addView(TextView(context).apply {
-            text = title; typeface = tf; paint.isFakeBoldText = true; textSize = 18f
-            setTextColor(Color.parseColor("#EEF3FC"))
+        val isBedtime = title.contains("Bedtime", true)
+        val iconRes = if (isBedtime) R.drawable.ic_bedtime_rounded else R.drawable.ic_brightness_rounded
+        val tintHex = if (isBedtime) "#D0BCFF" else "#FCD34D"
+        val badgeHex = if (isBedtime) "#2B243D" else "#382F1B"
+        root.addView(LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(ImageView(context).apply {
+                setImageResource(iconRes)
+                setColorFilter(Color.parseColor(tintHex))
+                val pad = (8 * d).toInt()
+                setPadding(pad, pad, pad, pad)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.parseColor(badgeHex))
+                }
+                layoutParams = LinearLayout.LayoutParams((36 * d).toInt(), (36 * d).toInt()).apply {
+                    marginEnd = (10 * d).toInt()
+                }
+            })
+            addView(TextView(context).apply {
+                text = title; typeface = tf; paint.isFakeBoldText = true; textSize = 18f
+                setTextColor(Color.parseColor("#EEF3FC"))
+            })
         })
         root.addView(TextView(context).apply {
             text = subtitle; typeface = tf; textSize = 13f
@@ -447,10 +469,17 @@ object KitchenUtilityCards {
             layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
         })
         val btnVoice = MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-            text = "Speak"
-            isAllCaps = false
-            textSize = 12.5f
+            contentDescription = "Voice add"
+            setIconResource(R.drawable.ic_mic_rounded)
+            iconSize = (18 * d).toInt()
+            iconPadding = 0
+            iconGravity = MaterialButton.ICON_GRAVITY_TEXT_START
+            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#A8C7FA"))
+            setPadding(0, 0, 0, 0)
+            insetTop = 0; insetBottom = 0; insetLeft = 0; insetRight = 0
+            minWidth = 0
             cornerRadius = (999 * d).toInt()
+            layoutParams = LinearLayout.LayoutParams((38 * d).toInt(), (38 * d).toInt())
             setOnClickListener {
                 TactileAudioEngine.playClick()
                 if (!SpeechRecognizer.isRecognitionAvailable(context)) {
@@ -462,18 +491,22 @@ object KitchenUtilityCards {
                     delay(160L)
                     val sr = SpeechRecognizer.createSpeechRecognizer(context)
                     sr.setRecognitionListener(object : RecognitionListener {
-                        override fun onReadyForSpeech(params: Bundle?) { text = "Listening..." }
+                        override fun onReadyForSpeech(params: Bundle?) {
+                            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF5252"))
+                        }
                         override fun onBeginningOfSpeech() {}
                         override fun onRmsChanged(rmsdB: Float) {}
                         override fun onBufferReceived(buffer: ByteArray?) {}
-                        override fun onEndOfSpeech() { text = "Speak" }
+                        override fun onEndOfSpeech() {
+                            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#A8C7FA"))
+                        }
                         override fun onError(error: Int) {
-                            text = "Speak"
+                            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#A8C7FA"))
                             sr.destroy()
                             CoroutineScope(Dispatchers.Main).launch { MicArbiter.exitStateToWakeWord() }
                         }
                         override fun onResults(results: Bundle?) {
-                            text = "Speak"
+                            iconTint = android.content.res.ColorStateList.valueOf(Color.parseColor("#A8C7FA"))
                             val spoken = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.trim()
                             if (!spoken.isNullOrEmpty()) {
                                 items.add(0, ShopItem(spoken, false))
@@ -677,14 +710,24 @@ object KitchenUtilityCards {
             }
         }
 
+        val modeButtons = mutableListOf<MaterialButton>()
+        fun syncModeChips() {
+            modeButtons.forEachIndexed { i, btn ->
+                val active = i == mode
+                btn.setBackgroundColor(Color.parseColor(if (active) "#A8C7FA" else "#232A38"))
+                btn.setTextColor(Color.parseColor(if (active) "#0B1220" else "#C4D0E3"))
+            }
+        }
+
         listOf("Temp", "Weight", "Vol", "Scale").forEachIndexed { idx, lbl ->
-            modeRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+            val b = MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
                 text = lbl
                 isAllCaps = false
                 textSize = 11.5f
                 maxLines = 1
                 minWidth = 0
                 setPadding(0, 0, 0, 0)
+                insetTop = 0; insetBottom = 0
                 cornerRadius = (999 * d).toInt()
                 layoutParams = LinearLayout.LayoutParams(0, (32 * d).toInt(), 1f).apply {
                     if (idx < 3) marginEnd = (5 * d).toInt()
@@ -693,11 +736,15 @@ object KitchenUtilityCards {
                     TactileAudioEngine.playClick()
                     mode = idx
                     value = when (idx) { 0 -> 180f; 1 -> 250f; 2 -> 240f; else -> 100f }
+                    syncModeChips()
                     rebuildSteppers()
                     refresh()
                 }
-            })
+            }
+            modeButtons.add(b)
+            modeRow.addView(b)
         }
+        syncModeChips()
 
         root.addView(modeRow)
         root.addView(tvMain)

@@ -9,7 +9,8 @@
     app:cardBackgroundColor="@color/m3_surface_container"
     app:cardCornerRadius="32dp"
     app:cardElevation="4dp"
-    app:strokeWidth="0dp">
+    app:strokeColor="#2A3242"
+    app:strokeWidth="1dp">
 
     <com.kyle.kitchenhub.core.ui.BentoRippleHostLayout
         android:layout_width="match_parent"
