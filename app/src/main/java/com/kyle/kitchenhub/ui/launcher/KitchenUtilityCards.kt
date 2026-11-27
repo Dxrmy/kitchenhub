@@ -20,6 +20,9 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -46,6 +49,17 @@ object KitchenUtilityCards {
 
     private const val PREFS_SHOP = "kitchenhub_shopping"
     private const val PREFS_HOME = "kitchenhub_smarthome"
+
+    private fun springBounce(view: View, startScale: Float = 0.94f) {
+        view.scaleX = startScale
+        view.scaleY = startScale
+        val spring = SpringForce(1f).apply {
+            stiffness = SpringForce.STIFFNESS_MEDIUM
+            dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+        }
+        SpringAnimation(view, DynamicAnimation.SCALE_X).apply { this.spring = spring }.start()
+        SpringAnimation(view, DynamicAnimation.SCALE_Y).apply { this.spring = spring }.start()
+    }
 
     private fun wrapCard(
         context: Context,
@@ -253,6 +267,7 @@ object KitchenUtilityCards {
 
         fun triggerGemini() {
             TactileAudioEngine.playClick()
+            springBounce(card, 0.96f)
             handler.removeCallbacks(resetHalo)
             geminiIcon.animate().rotationBy(90f).setDuration(260L).start()
             haloView.animate().alpha(0.55f).scaleX(1.12f).scaleY(1.12f).setDuration(220L).start()
@@ -533,10 +548,18 @@ object KitchenUtilityCards {
         val addRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
+            setPadding((14 * d).toInt(), (4 * d).toInt(), (4 * d).toInt(), (4 * d).toInt())
+            background = GradientDrawable().apply {
+                cornerRadius = 999f * d
+                setColor(Color.parseColor("#202633"))
+                setStroke((1 * d).toInt(), Color.parseColor("#2E3748"))
+            }
             layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt(); bottomMargin = (8 * d).toInt() }
         }
         val input = EditText(context).apply {
             hint = "Add item..."
+            background = null
+            setPadding(0, (6 * d).toInt(), (8 * d).toInt(), (6 * d).toInt())
             setHintTextColor(Color.parseColor("#748094"))
             setTextColor(Color.WHITE)
             textSize = 14f
@@ -991,6 +1014,7 @@ object KitchenUtilityCards {
                     dotHex = "#434E63"
                 }
 
+                tileCard.radius = (if (on) 28f else 18f) * d
                 tileCard.setCardBackgroundColor(Color.parseColor(bgHex))
                 tileCard.strokeWidth = ((if (on) 1.5f else 1f) * d).toInt()
                 tileCard.strokeColor = Color.parseColor(strokeHex)
@@ -1021,6 +1045,7 @@ object KitchenUtilityCards {
 
             tileCard.setOnClickListener {
                 TactileAudioEngine.playClick()
+                springBounce(tileCard, 0.93f)
                 val next = !dev.isOn
                 dev.isOn = next
                 applyTileState()
