@@ -238,8 +238,8 @@ class MainActivity : AppCompatActivity() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
                 val shift = clockTabShiftPx()
                 if (position == 0) {
-                    // Sliding between Page 0 (Clock) and Page 1 (Home) — blend backgrounds seamlessly
-                    b.ambientBackdrop.alpha = positionOffset
+                    // Keep shared AmbientBackdropView visible behind Page 0's squircle mask
+                    b.ambientBackdrop.alpha = 1f
                     b.mainPager.findViewById<com.kyle.kitchenhub.ui.clock.StandByClockContainer>(R.id.clockPageRoot)
                         ?.setTransitionFraction(positionOffset)
                     if (positionOffset > 0.02f) setTopBarVisible(true)

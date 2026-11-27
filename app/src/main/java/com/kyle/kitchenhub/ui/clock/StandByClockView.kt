@@ -71,9 +71,8 @@ class StandByClockView @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
-    private val maskPath = Path().apply { fillType = Path.FillType.EVEN_ODD }
-    private val maskRect = RectF()
-    private val maskOuterPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val squircleRect = RectF()
+    private val squircleFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val maskBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 1.5f * resources.displayMetrics.density
@@ -92,42 +91,31 @@ class StandByClockView @JvmOverloads constructor(
 
         if (!compactMode) {
             val d = resources.displayMetrics.density
-            // As bgDarkness goes 0 -> 1, squircle expands out past the screen edges
+            // t = 0: black squircle below the top tab bar over the shared AmbientBackdropView
+            // t = 1: black squircle expands outward to cover everything black
             val t = bgDarkness.coerceIn(0f, 1f)
-            val inset = (22f * (1f - t) - 24f * t) * d
-            val corner = (42f * (1f - t)).coerceAtLeast(0f) * d
+            val topInset = (68f * (1f - t) - 24f * t) * d
+            val sideInset = (22f * (1f - t) - 24f * t) * d
+            val bottomInset = (22f * (1f - t) - 24f * t) * d
+            val corner = (36f * (1f - t)).coerceAtLeast(0f) * d
 
-            // Darken interior smoothly as bgDarkness increases (0 = clear shared AmbientBackdropView)
-            val innerDarkAlpha = if (nightMode) {
-                (bgAlpha * (170f + 85f * t)).toInt().coerceIn(0, 255)
-            } else {
-                (bgAlpha * (t * 238f)).toInt().coerceIn(0, 255)
+            squircleRect.set(sideInset, topInset, w - sideInset, h - bottomInset)
+
+            val fillAlpha = (bgAlpha * 255f).toInt().coerceIn(0, 255)
+            if (fillAlpha > 0) {
+                squircleFillPaint.color = Color.argb(fillAlpha, 0, 0, 0)
+                canvas.drawRoundRect(squircleRect, corner, corner, squircleFillPaint)
             }
-            if (innerDarkAlpha > 0) {
-                canvas.drawColor(Color.argb(innerDarkAlpha, 5, 7, 12))
-            }
 
-            // Outer squircle border mask (part of the same backdrop, expands outward on darken)
-            if (t < 0.99f) {
-                maskPath.reset()
-                maskPath.addRect(0f, 0f, w, h, Path.Direction.CW)
-                maskRect.set(inset, inset, w - inset, h - inset)
-                maskPath.addRoundRect(maskRect, corner, corner, Path.Direction.CW)
-
-                val outerAlpha = (bgAlpha * (145f * (1f - t))).toInt().coerceIn(0, 255)
-                maskOuterPaint.color = Color.argb(outerAlpha, 8, 11, 18)
-                canvas.drawPath(maskPath, maskOuterPaint)
-
-                val borderAlpha = (bgAlpha * (95f * (1f - t))).toInt().coerceIn(0, 255)
-                if (borderAlpha > 0) {
-                    maskBorderPaint.color = Color.argb(
-                        borderAlpha,
-                        Color.red(c1),
-                        Color.green(c1),
-                        Color.blue(c1)
-                    )
-                    canvas.drawRoundRect(maskRect, corner, corner, maskBorderPaint)
-                }
+            val borderAlpha = (bgAlpha * (95f * (1f - t))).toInt().coerceIn(0, 255)
+            if (borderAlpha > 0) {
+                maskBorderPaint.color = Color.argb(
+                    borderAlpha,
+                    Color.red(c1),
+                    Color.green(c1),
+                    Color.blue(c1)
+                )
+                canvas.drawRoundRect(squircleRect, corner, corner, maskBorderPaint)
             }
         }
 
