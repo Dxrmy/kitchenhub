@@ -18,13 +18,13 @@
     <include
         android:id="@+id/weatherInclude"
         layout="@layout/card_home_weather"
-        android:layout_width="450dp"
+        android:layout_width="360dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="16dp" />
 
     <!-- Right Column: Sticky Notes (Top) + Timers & Alarms (Bottom) -->
     <LinearLayout
-        android:layout_width="380dp"
+        android:layout_width="350dp"
         android:layout_height="match_parent"
         android:clipChildren="false"
         android:clipToPadding="false"

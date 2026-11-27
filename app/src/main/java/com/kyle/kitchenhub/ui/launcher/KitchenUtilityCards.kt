@@ -447,17 +447,16 @@ object KitchenUtilityCards {
                 else -> listOf(-25, -5, -1, 1, 5, 25)
             }
             deltas.forEachIndexed { idx, delta ->
-                val targetRow = if (idx < 3) stepRow1 else stepRow2
-                targetRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                stepRow1.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
                     text = if (delta > 0) "+$delta" else "$delta"
                     isAllCaps = false
-                    textSize = 12f
+                    textSize = 11.5f
                     maxLines = 1
                     minWidth = 0
                     setPadding(0, 0, 0, 0)
                     cornerRadius = (999 * d).toInt()
                     layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
-                        if (idx % 3 < 2) marginEnd = (6 * d).toInt()
+                        if (idx < deltas.lastIndex) marginEnd = (4 * d).toInt()
                     }
                     setOnClickListener {
                         TactileAudioEngine.playClick()
@@ -467,16 +466,17 @@ object KitchenUtilityCards {
                 })
             }
             if (mode == 3) {
-                stepRow2.removeAllViews()
+                stepRow2.visibility = View.VISIBLE
                 listOf(0.5f, 1.0f, 1.5f, 2.0f, 3.0f).forEachIndexed { i, mult ->
                     stepRow2.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
                         text = "${mult}x"
                         isAllCaps = false
                         textSize = 11.5f
+                        maxLines = 1
                         minWidth = 0
                         setPadding(0, 0, 0, 0)
                         cornerRadius = (999 * d).toInt()
-                        layoutParams = LinearLayout.LayoutParams(0, (34 * d).toInt(), 1f).apply {
+                        layoutParams = LinearLayout.LayoutParams(0, (32 * d).toInt(), 1f).apply {
                             if (i < 4) marginEnd = (4 * d).toInt()
                         }
                         setOnClickListener {
@@ -486,6 +486,8 @@ object KitchenUtilityCards {
                         }
                     })
                 }
+            } else {
+                stepRow2.visibility = View.GONE
             }
         }
 
@@ -493,13 +495,13 @@ object KitchenUtilityCards {
             modeRow.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
                 text = lbl
                 isAllCaps = false
-                textSize = 12f
+                textSize = 11.5f
                 maxLines = 1
                 minWidth = 0
                 setPadding(0, 0, 0, 0)
                 cornerRadius = (999 * d).toInt()
-                layoutParams = LinearLayout.LayoutParams(0, (38 * d).toInt(), 1f).apply {
-                    if (idx < 3) marginEnd = (6 * d).toInt()
+                layoutParams = LinearLayout.LayoutParams(0, (32 * d).toInt(), 1f).apply {
+                    if (idx < 3) marginEnd = (5 * d).toInt()
                 }
                 setOnClickListener {
                     TactileAudioEngine.playClick()
