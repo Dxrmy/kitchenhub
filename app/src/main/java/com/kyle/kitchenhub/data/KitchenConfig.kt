@@ -14,6 +14,7 @@ data class KitchenConfig(
     val tactileVolume: Float = 0.65f,
     // StandBy Clock & Display
     val clockFace: String = "FLOAT", // FLOAT, SOLAR, DIGITAL, ANALOG, MINIMAL, SPLIT, PHOTOS
+    val screensaverVariant: String = "MINIMAL", // MINIMAL, HORIZON, NOW_PLAYING, PHOTOS, NIGHTSTAND
     val clockPaletteIndex: Int = 0,
     val idleTimeoutSec: Int = 60, // 30, 60, 120, 300, 0(Off)
     val pixelShiftPx: Int = 6,
@@ -68,6 +69,7 @@ data class KitchenConfig(
         put("clockPaletteIndex", clockPaletteIndex)
         put("idleTimeoutSec", idleTimeoutSec)
         put("pixelShiftPx", pixelShiftPx)
+        put("screensaverVariant", screensaverVariant)
         put("pixelShiftIntervalSec", pixelShiftIntervalSec)
         put("nightModeStartHour", nightModeStartHour)
         put("nightModeEndHour", nightModeEndHour)
@@ -114,6 +116,7 @@ data class KitchenConfig(
             tactileAudioEnabled = j.optBoolean("tactileAudioEnabled", true),
             tactileVolume = j.optDouble("tactileVolume", 0.65).toFloat(),
             clockFace = j.optString("clockFace", "FLOAT"),
+            screensaverVariant = j.optString("screensaverVariant", "MINIMAL"),
             clockPaletteIndex = j.optInt("clockPaletteIndex", 0),
             idleTimeoutSec = j.optInt("idleTimeoutSec", 60),
             pixelShiftPx = j.optInt("pixelShiftPx", 6),

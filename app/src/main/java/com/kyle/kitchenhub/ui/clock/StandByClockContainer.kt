@@ -1,20 +1,27 @@
 package com.kyle.kitchenhub.ui.clock
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.palette.graphics.Palette
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.kyle.kitchenhub.R
 import com.kyle.kitchenhub.core.audio.TactileAudioEngine
 import com.kyle.kitchenhub.core.env.DeviceEnvironment
 import com.kyle.kitchenhub.core.ui.FontCache
@@ -109,16 +116,173 @@ class StandByClockContainer @JvmOverloads constructor(
         addView(notifStatusIcon)
     }
 
+    private val d = resources.displayMetrics.density
+    private val variants = listOf("MINIMAL", "HORIZON", "NOW_PLAYING", "PHOTOS", "NIGHTSTAND")
+    private var currentVariant = "MINIMAL"
+    private var photoFiles: List<File> = emptyList()
+    private var photoIndex = 0
+    private val photoHandler = Handler(Looper.getMainLooper())
+    private val photoRunnable = object : Runnable {
+        override fun run() {
+            advancePhotoFrame()
+            val sec = ConfigRepository.get(context).photoIntervalSec.coerceIn(5, 300)
+            photoHandler.postDelayed(this, sec * 1000L)
+        }
+    }
+
+    private val artBackdropCard = MaterialCardView(context).apply {
+        radius = 32f * d
+        cardElevation = 0f
+        strokeWidth = 0
+        setCardBackgroundColor(Color.BLACK)
+        visibility = View.GONE
+    }
+    private val artBackdropImage = ImageView(context).apply {
+        scaleType = ImageView.ScaleType.CENTER_CROP
+    }
+
+    private val weatherPillIcon = ImageView(context).apply {
+        setImageResource(R.drawable.ic_partly_cloudy_rounded)
+        layoutParams = LinearLayout.LayoutParams((18 * d).toInt(), (18 * d).toInt()).apply { marginEnd = (8 * d).toInt() }
+    }
+    private val weatherPillText = TextView(context).apply {
+        typeface = FontCache.plusJakarta(context)
+        textSize = 13f
+        setTextColor(Color.parseColor("#E2ECFF"))
+        maxLines = 1
+    }
+    private val weatherPill = MaterialCardView(context).apply {
+        radius = 999f * d
+        cardElevation = 0f
+        strokeWidth = (1 * d).toInt()
+        strokeColor = Color.parseColor("#26FFFFFF")
+        setCardBackgroundColor(Color.parseColor("#CC161C28"))
+        visibility = View.GONE
+        addView(LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding((14 * d).toInt(), (7 * d).toInt(), (14 * d).toInt(), (7 * d).toInt())
+            addView(weatherPillIcon)
+            addView(weatherPillText)
+        })
+    }
+
+    private val variantPillText = TextView(context).apply {
+        typeface = FontCache.plusJakarta(context)
+        paint.isFakeBoldText = true
+        textSize = 12f
+        setTextColor(Color.parseColor("#A8C7FA"))
+    }
+    private val variantPill = MaterialCardView(context).apply {
+        radius = 999f * d
+        cardElevation = 0f
+        strokeWidth = (1 * d).toInt()
+        strokeColor = Color.parseColor("#26FFFFFF")
+        setCardBackgroundColor(Color.parseColor("#CC161C28"))
+        isClickable = true
+        isFocusable = true
+        addView(LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding((14 * d).toInt(), (7 * d).toInt(), (14 * d).toInt(), (7 * d).toInt())
+            addView(variantPillText)
+        })
+        setOnClickListener {
+            TactileAudioEngine.playDetentTick()
+            val idx = (variants.indexOf(currentVariant) + 1) % variants.size
+            currentVariant = variants[idx]
+            ConfigRepository.update(context) { it.copy(screensaverVariant = currentVariant) }
+            applyVariantState()
+            showFaceBadge(variantLabel(currentVariant))
+        }
+    }
+
+    private val npTitle = TextView(context).apply {
+        typeface = FontCache.plusJakarta(context)
+        paint.isFakeBoldText = true
+        textSize = 14.5f
+        setTextColor(Color.WHITE)
+        maxLines = 1
+        ellipsize = TextUtils.TruncateAt.END
+    }
+    private val npArtist = TextView(context).apply {
+        typeface = FontCache.plusJakarta(context)
+        textSize = 12.5f
+        setTextColor(Color.parseColor("#B8C7E8"))
+        maxLines = 1
+        ellipsize = TextUtils.TruncateAt.END
+    }
+    private val npProgress = LinearProgressIndicator(context, null, com.google.android.material.R.attr.linearProgressIndicatorStyle).apply {
+        isIndeterminate = false
+        max = 100
+        trackCornerRadius = (999 * d).toInt()
+        trackThickness = (4 * d).toInt()
+        setIndicatorColor(Color.parseColor("#A8C7FA"))
+        trackColor = Color.parseColor("#33FFFFFF")
+        layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (8 * d).toInt() }
+    }
+    private val nowPlayingPill = MaterialCardView(context).apply {
+        radius = 24f * d
+        cardElevation = 0f
+        strokeWidth = (1 * d).toInt()
+        strokeColor = Color.parseColor("#2EFFFFFF")
+        setCardBackgroundColor(Color.parseColor("#CC171C26"))
+        visibility = View.GONE
+        addView(LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding((18 * d).toInt(), (12 * d).toInt(), (18 * d).toInt(), (12 * d).toInt())
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(context).apply {
+                    setImageResource(R.drawable.ic_music_note_rounded)
+                    setColorFilter(Color.parseColor("#A8C7FA"))
+                    layoutParams = LinearLayout.LayoutParams((20 * d).toInt(), (20 * d).toInt()).apply { marginEnd = (10 * d).toInt() }
+                })
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                    addView(npTitle)
+                    addView(npArtist)
+                })
+            })
+            addView(npProgress)
+        })
+    }
+
+    private val nightAlarmText = TextView(context).apply {
+        typeface = FontCache.plusJakarta(context)
+        textSize = 13.5f
+        setTextColor(Color.parseColor("#D94436"))
+    }
+    private val nightAlarmChip = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        visibility = View.GONE
+        addView(ImageView(context).apply {
+            setImageResource(R.drawable.ic_alarm_rounded)
+            setColorFilter(Color.parseColor("#D94436"))
+            layoutParams = LinearLayout.LayoutParams((18 * d).toInt(), (18 * d).toInt()).apply { marginEnd = (8 * d).toInt() }
+        })
+        addView(nightAlarmText)
+    }
+
     private val shiftHandler = Handler(Looper.getMainLooper())
     private var shiftStep = 0
     private val shiftRunnable = object : Runnable {
         override fun run() {
             val cfg = ConfigRepository.get(context)
             val amp = cfg.pixelShiftPx.toFloat()
-            val offsets = listOf(amp to 0f, 0f to amp, -amp to 0f, 0f to -amp)
-            val (dx, dy) = offsets[shiftStep++ % offsets.size]
-            shiftWrapper.animate().translationX(dx).translationY(dy).setDuration(600L).start()
-            shiftHandler.postDelayed(this, cfg.pixelShiftIntervalSec * 1000L)
+            val angle = (shiftStep++ % 12) * (Math.PI / 6.0)
+            val dx = (amp * kotlin.math.cos(angle)).toFloat()
+            val dy = (amp * kotlin.math.sin(angle)).toFloat()
+            shiftWrapper.animate()
+                .translationX(dx)
+                .translationY(dy)
+                .setDuration(3500L)
+                .setInterpolator(AccelerateDecelerateInterpolator())
+                .start()
+            shiftHandler.postDelayed(this, (cfg.pixelShiftIntervalSec.coerceAtLeast(15)) * 1000L)
         }
     }
 
@@ -165,6 +329,11 @@ class StandByClockContainer @JvmOverloads constructor(
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
+        artBackdropCard.addView(artBackdropImage, LayoutParams(-1, -1))
+        val artLp = LayoutParams(-1, -1).apply {
+            setMargins((32 * d).toInt(), (84 * d).toInt(), (32 * d).toInt(), (32 * d).toInt())
+        }
+        shiftWrapper.addView(artBackdropCard, artLp)
         shiftWrapper.addView(fullClock, LayoutParams(-1, -1))
         splitLayout.addView(splitClock, LinearLayout.LayoutParams(0, -1, 1f))
         splitLayout.addView(splitWidgetCard, LinearLayout.LayoutParams(0, -1, 1f))
@@ -176,26 +345,49 @@ class StandByClockContainer @JvmOverloads constructor(
         }
         shiftWrapper.addView(photoWrap, LayoutParams(-1, -1))
 
-        val d = resources.displayMetrics.density
         val stickyLp = LayoutParams((280 * d).toInt(), -2, Gravity.BOTTOM or Gravity.END).apply {
-            marginEnd = (28 * d).toInt()
-            bottomMargin = (24 * d).toInt()
+            marginEnd = (52 * d).toInt()
+            bottomMargin = (50 * d).toInt()
         }
         shiftWrapper.addView(lockStickyContainer, stickyLp)
 
         addView(shiftWrapper, LayoutParams(-1, -1))
 
+        addView(weatherPill, LayoutParams(-2, -2, Gravity.TOP or Gravity.START).apply {
+            marginStart = (52 * d).toInt()
+            topMargin = (102 * d).toInt()
+        })
+        addView(variantPill, LayoutParams(-2, -2, Gravity.TOP or Gravity.END).apply {
+            marginEnd = (52 * d).toInt()
+            topMargin = (102 * d).toInt()
+        })
+        addView(nowPlayingPill, LayoutParams((360 * d).toInt(), -2, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply {
+            bottomMargin = (52 * d).toInt()
+        })
+        addView(nightAlarmChip, LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.START).apply {
+            marginStart = (52 * d).toInt()
+            bottomMargin = (52 * d).toInt()
+        })
+
         val badgeLp = LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply {
-            bottomMargin = (44 * resources.displayMetrics.density).toInt()
+            bottomMargin = (52 * d).toInt()
         }
         addView(faceBadge, badgeLp)
 
         val statusLp = LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.START).apply {
-            val d = resources.displayMetrics.density
-            marginStart = (28 * d).toInt()
-            bottomMargin = (24 * d).toInt()
+            marginStart = (52 * d).toInt()
+            bottomMargin = (52 * d).toInt()
         }
         addView(idleStatusRow, statusLp)
+
+        MediaBridgeService.addListener { st ->
+            post {
+                if (currentVariant == "NOW_PLAYING" && modeIndex == 0) {
+                    applyVariantState()
+                }
+            }
+        }
+
         refreshFromConfig()
     }
 
@@ -221,6 +413,11 @@ class StandByClockContainer @JvmOverloads constructor(
         val alpha = 1f - offset.coerceIn(0f, 1f)
         fullClock.bgAlpha = alpha
         splitClock.bgAlpha = alpha
+        artBackdropCard.alpha = alpha
+        weatherPill.alpha = alpha * (1f - fullClock.bgDarkness)
+        variantPill.alpha = alpha * (1f - fullClock.bgDarkness)
+        nowPlayingPill.alpha = alpha
+        nightAlarmChip.alpha = alpha
     }
 
     private fun dismissLockStickyNote(noteId: Long, card: View) {
@@ -328,9 +525,18 @@ class StandByClockContainer @JvmOverloads constructor(
         android.animation.ValueAnimator.ofFloat(fullClock.bgDarkness, target).apply {
             duration = if (darkened) 360L else 240L
             addUpdateListener {
-                val d = it.animatedValue as Float
-                fullClock.bgDarkness = d
-                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setAmbientDarkness(d)
+                val t = it.animatedValue as Float
+                fullClock.bgDarkness = t
+                val topM = ((84f * (1f - t)).coerceAtLeast(0f) * d).toInt()
+                val sideM = ((32f * (1f - t)).coerceAtLeast(0f) * d).toInt()
+                (artBackdropCard.layoutParams as? LayoutParams)?.let { lp ->
+                    lp.setMargins(sideM, topM, sideM, sideM)
+                    artBackdropCard.layoutParams = lp
+                }
+                artBackdropCard.radius = (32f * (1f - t)).coerceAtLeast(0f) * d
+                variantPill.alpha = 1f - t
+                weatherPill.alpha = 1f - t * 0.7f
+                com.kyle.kitchenhub.ui.overlay.FloatingGeminiPill.setAmbientDarkness(t)
             }
             start()
         }
@@ -354,6 +560,7 @@ class StandByClockContainer @JvmOverloads constructor(
     fun refreshFromConfig() {
         val cfg = ConfigRepository.get(context)
         val night = isNightTime(cfg.nightModeStartHour, cfg.nightModeEndHour)
+        currentVariant = cfg.screensaverVariant.ifBlank { "MINIMAL" }
         fullClock.paletteIndex = cfg.clockPaletteIndex
         fullClock.nightMode = night
         splitClock.paletteIndex = cfg.clockPaletteIndex
@@ -369,10 +576,157 @@ class StandByClockContainer @JvmOverloads constructor(
             val w = WeatherAndCalRepository.fetchWeather(cfg)
             fullClock.weatherText = "${w.tempDisplay} ${w.condition}"
             splitClock.weatherText = fullClock.weatherText
+            weatherPillText.text = "${w.tempDisplay}${if (cfg.useFahrenheit) "°F" else "°C"} • ${w.condition}"
+            weatherPillIcon.setImageResource(when {
+                w.condition.contains("Rain", true) || w.condition.contains("Storm", true) -> R.drawable.ic_rainy_rounded
+                w.condition.contains("Clear", true) -> R.drawable.ic_sunny_rounded
+                else -> R.drawable.ic_partly_cloudy_rounded
+            })
+            if (currentVariant == "HORIZON") {
+                fullClock.reactiveAccent = when {
+                    w.condition.contains("Rain", true) || w.condition.contains("Storm", true) -> Color.parseColor("#3B82F6")
+                    w.condition.contains("Clear", true) -> Color.parseColor("#D97706")
+                    else -> Color.parseColor("#2A426E")
+                }
+            }
+            val detail = WeatherAndCalRepository.fetchDetailedWeather(cfg)
+            if (detail != null) {
+                fullClock.sunProgress = computeSunProgress(detail.sunrise, detail.sunset)
+            }
             if (modeIndex == 1) renderSplitWidget()
+            applyVariantState()
         }
+        applyVariantState()
         renderMode()
         refreshLockStickyNote()
+    }
+
+    private fun variantLabel(v: String): String = when (v) {
+        "HORIZON" -> "Horizon"
+        "NOW_PLAYING" -> "Now Playing"
+        "PHOTOS" -> "Photos"
+        "NIGHTSTAND" -> "Nightstand"
+        else -> "Minimal"
+    }
+
+    private fun computeSunProgress(sunrise: String, sunset: String): Float {
+        fun mins(s: String): Int? {
+            val p = s.trim().split(":")
+            if (p.size < 2) return null
+            val h = p[0].toIntOrNull() ?: return null
+            val m = p[1].toIntOrNull() ?: return null
+            return h * 60 + m
+        }
+        val r = mins(sunrise) ?: return -1f
+        val s = mins(sunset) ?: return -1f
+        if (s <= r) return -1f
+        val cal = Calendar.getInstance()
+        val now = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
+        return if (now in r..s) (now - r).toFloat() / (s - r).toFloat() else -1f
+    }
+
+    private fun applyVariantState() {
+        variantPillText.text = variantLabel(currentVariant)
+        fullClock.variant = currentVariant
+        photoHandler.removeCallbacks(photoRunnable)
+
+        val st = MediaBridgeService.current
+        val mediaActive = st.title != "Nothing Playing" && (st.isPlaying || st.art != null)
+
+        when (currentVariant) {
+            "NOW_PLAYING" -> {
+                weatherPill.visibility = View.GONE
+                nightAlarmChip.visibility = View.GONE
+                if (mediaActive) {
+                    nowPlayingPill.visibility = View.VISIBLE
+                    npTitle.text = st.title
+                    npArtist.text = st.artist
+                    npProgress.setProgressCompat((MediaBridgeService.getProgressFraction() * 100f).toInt().coerceIn(0, 100), true)
+                    if (st.art != null) {
+                        artBackdropImage.setImageBitmap(st.art)
+                        artBackdropImage.alpha = 0.42f
+                        artBackdropCard.visibility = View.VISIBLE
+                        fullClock.hasArtBackdrop = true
+                        val p = Palette.from(st.art).generate()
+                        val accent = p.getLightVibrantColor(p.getVibrantColor(Color.parseColor("#A8C7FA")))
+                        fullClock.reactiveAccent = accent
+                        npProgress.setIndicatorColor(accent)
+                    } else {
+                        artBackdropCard.visibility = View.GONE
+                        fullClock.hasArtBackdrop = false
+                        fullClock.reactiveAccent = Color.parseColor("#A8C7FA")
+                    }
+                } else {
+                    nowPlayingPill.visibility = View.GONE
+                    artBackdropCard.visibility = View.GONE
+                    fullClock.hasArtBackdrop = false
+                    fullClock.reactiveAccent = null
+                }
+            }
+            "PHOTOS" -> {
+                weatherPill.visibility = if (weatherPillText.text.isNotBlank()) View.VISIBLE else View.GONE
+                nowPlayingPill.visibility = View.GONE
+                nightAlarmChip.visibility = View.GONE
+                fullClock.reactiveAccent = null
+                val dir = File(ConfigRepository.get(context).photoFolderPath)
+                photoFiles = dir.listFiles()?.filter { it.extension.lowercase() in listOf("jpg", "jpeg", "png") } ?: emptyList()
+                if (photoFiles.isNotEmpty()) {
+                    artBackdropCard.visibility = View.VISIBLE
+                    fullClock.hasArtBackdrop = true
+                    photoHandler.post(photoRunnable)
+                } else {
+                    artBackdropCard.visibility = View.GONE
+                    fullClock.hasArtBackdrop = false
+                }
+            }
+            "NIGHTSTAND" -> {
+                weatherPill.visibility = View.GONE
+                nowPlayingPill.visibility = View.GONE
+                artBackdropCard.visibility = View.GONE
+                fullClock.hasArtBackdrop = false
+                fullClock.reactiveAccent = null
+                val nextAlarm = com.kyle.kitchenhub.data.SystemAlarmsRepository.getEnabledOfficialAlarms(context).firstOrNull()
+                if (nextAlarm != null) {
+                    nightAlarmText.text = nextAlarm.timeText
+                    nightAlarmChip.visibility = View.VISIBLE
+                } else {
+                    nightAlarmChip.visibility = View.GONE
+                }
+            }
+            else -> { // MINIMAL or HORIZON
+                weatherPill.visibility = if (weatherPillText.text.isNotBlank()) View.VISIBLE else View.GONE
+                nowPlayingPill.visibility = View.GONE
+                nightAlarmChip.visibility = View.GONE
+                artBackdropCard.visibility = View.GONE
+                fullClock.hasArtBackdrop = false
+                if (currentVariant == "MINIMAL") fullClock.reactiveAccent = null
+            }
+        }
+    }
+
+    private fun advancePhotoFrame() {
+        if (photoFiles.isEmpty()) return
+        val file = photoFiles[photoIndex % photoFiles.size]
+        photoIndex++
+        val bmp = BitmapFactory.decodeFile(file.absolutePath) ?: return
+        artBackdropImage.animate().cancel()
+        artBackdropImage.alpha = 0f
+        artBackdropImage.scaleX = 1f
+        artBackdropImage.scaleY = 1f
+        artBackdropImage.translationX = 0f
+        artBackdropImage.translationY = 0f
+        artBackdropImage.setImageBitmap(bmp)
+        val dur = (ConfigRepository.get(context).photoIntervalSec.coerceIn(5, 300) * 1000L)
+        artBackdropImage.animate().alpha(0.75f).setDuration(900L).start()
+        val panX = if (photoIndex % 2 == 0) 14f * d else -14f * d
+        val panY = if (photoIndex % 3 == 0) 10f * d else -10f * d
+        artBackdropImage.animate()
+            .scaleX(1.08f)
+            .scaleY(1.08f)
+            .translationX(panX)
+            .translationY(panY)
+            .setDuration(dur)
+            .start()
     }
 
     private fun isNightTime(startH: Int, endH: Int): Boolean {
@@ -455,6 +809,7 @@ class StandByClockContainer @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         shiftHandler.removeCallbacks(shiftRunnable)
+        photoHandler.removeCallbacks(photoRunnable)
         super.onDetachedFromWindow()
     }
 

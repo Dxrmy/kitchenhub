@@ -178,6 +178,9 @@ class SettingsActivity : AppCompatActivity() {
                 addCycle("Default Clock Face", listOf("XMORPH", "FLOAT", "SOLAR", "DIGITAL", "ANALOG", "MINIMAL", "SPLIT", "PHOTOS"), cfg.clockFace) { next ->
                     ConfigRepository.update(this) { it.copy(clockFace = next) }
                 }
+                addCycle("Screensaver Variant", listOf("MINIMAL", "HORIZON", "NOW_PLAYING", "PHOTOS", "NIGHTSTAND"), cfg.screensaverVariant) { next ->
+                    ConfigRepository.update(this) { it.copy(screensaverVariant = next) }
+                }
                 addCycle("Idle Clock Timeout (sec)", listOf("30", "60", "120", "300", "0"), cfg.idleTimeoutSec.toString()) { next ->
                     ConfigRepository.update(this) { it.copy(idleTimeoutSec = next.toInt()) }
                 }
