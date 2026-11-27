@@ -9,10 +9,13 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.text.TextUtils
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -586,137 +589,422 @@ object KitchenUtilityCards {
         root.addView(grid)
     }
 
+    private fun smartDeviceIconRes(dev: com.kyle.kitchenhub.data.SmartHomeDevice): Int {
+        val lower = dev.name.lowercase(Locale.ROOT)
+        return when {
+            dev.kind == "climate" -> R.drawable.ic_thermostat_rounded
+            "speaker" in lower || "audio" in lower || "sonos" in lower -> R.drawable.ic_speaker_rounded
+            dev.kind == "light" || "light" in lower || "lamp" in lower || "wardrobe" in lower || "led" in lower ->
+                R.drawable.ic_lightbulb_rounded
+            else -> R.drawable.ic_power_plug_rounded
+        }
+    }
+
     fun buildSmartHomeCard(context: Context, inStack: Boolean = false): View = wrapCard(context, 380, !inStack) { root ->
         val d = context.resources.displayMetrics.density
         val tf = FontCache.plusJakarta(context)
 
-        root.addView(TextView(context).apply {
-            text = "Home controls"
+        val subtitleView = TextView(context).apply {
+            text = "Loading devices…"
             typeface = tf
-            paint.isFakeBoldText = true
-            textSize = 20f
-            setTextColor(Color.parseColor("#EEF3FC"))
-            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = (10 * d).toInt() }
-        })
+            textSize = 12.5f
+            setTextColor(Color.parseColor("#8EA4C8"))
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
+        }
+
+        val headerActions = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+
+        val header = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = (12 * d).toInt() }
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply { marginEnd = (8 * d).toInt() }
+                addView(TextView(context).apply {
+                    text = "Home controls"
+                    typeface = tf
+                    paint.isFakeBoldText = true
+                    textSize = 20f
+                    setTextColor(Color.parseColor("#EEF3FC"))
+                    maxLines = 1
+                })
+                addView(subtitleView)
+            })
+            addView(headerActions)
+        }
+        root.addView(header)
 
         val devicesContainer = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
-        }
-        root.addView(devicesContainer)
-
-        val footer = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
             layoutParams = LinearLayout.LayoutParams(-1, -2)
         }
-        root.addView(footer)
+        val scroll = ScrollView(context).apply {
+            isVerticalScrollBarEnabled = false
+            overScrollMode = View.OVER_SCROLL_NEVER
+            clipToPadding = false
+            layoutParams = LinearLayout.LayoutParams(-1, 0, 1f)
+            addView(devicesContainer)
+        }
+        root.addView(scroll)
 
-        fun deviceRow(dev: com.kyle.kitchenhub.data.SmartHomeDevice): View {
-            return if (dev.kind == "climate") {
-                var targetC = dev.targetTempC
-                LinearLayout(context).apply {
+        var currentDevices: List<com.kyle.kitchenhub.data.SmartHomeDevice> = emptyList()
+
+        fun updateSummary() {
+            if (currentDevices.isEmpty()) {
+                subtitleView.text = "Not connected"
+                subtitleView.setTextColor(Color.parseColor("#8EA4C8"))
+            } else {
+                val onCount = currentDevices.count { it.isOn }
+                val total = currentDevices.size
+                subtitleView.text = if (onCount > 0) "$onCount on • $total devices" else "All off • $total devices"
+                subtitleView.setTextColor(
+                    Color.parseColor(if (onCount > 0) "#A8C7FA" else "#8EA4C8")
+                )
+            }
+        }
+
+        fun buildToggleTile(dev: com.kyle.kitchenhub.data.SmartHomeDevice): View {
+            val isLight = dev.kind == "light" || "light" in dev.name.lowercase(Locale.ROOT) || "wardrobe" in dev.name.lowercase(Locale.ROOT)
+
+            val tileCard = MaterialCardView(context).apply {
+                radius = 22f * d
+                cardElevation = 0f
+                isClickable = true
+                isFocusable = true
+                val ripple = TypedValue()
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackground, ripple, true)
+                foreground = context.getDrawable(ripple.resourceId)
+            }
+
+            val iconBadgeBg = GradientDrawable().apply { shape = GradientDrawable.OVAL }
+            val iconView = ImageView(context).apply {
+                setImageResource(smartDeviceIconRes(dev))
+                val pad = (8 * d).toInt()
+                setPadding(pad, pad, pad, pad)
+                background = iconBadgeBg
+                layoutParams = LinearLayout.LayoutParams((36 * d).toInt(), (36 * d).toInt())
+            }
+            val dotBg = GradientDrawable().apply { shape = GradientDrawable.OVAL }
+            val statusDot = View(context).apply {
+                background = dotBg
+                layoutParams = LinearLayout.LayoutParams((8 * d).toInt(), (8 * d).toInt())
+            }
+            val nameTv = TextView(context).apply {
+                text = dev.name
+                typeface = tf
+                paint.isFakeBoldText = true
+                textSize = 14f
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (10 * d).toInt() }
+            }
+            val stateTv = TextView(context).apply {
+                typeface = tf
+                textSize = 12f
+                maxLines = 1
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (2 * d).toInt() }
+            }
+
+            fun applyTileState() {
+                val on = dev.isOn
+                val bgHex: String
+                val strokeHex: String
+                val badgeHex: String
+                val iconTintHex: String
+                val nameHex: String
+                val stateHex: String
+                val dotHex: String
+
+                if (on && isLight) {
+                    bgHex = "#2D2618"
+                    strokeHex = "#66FBBF24"
+                    badgeHex = "#4A3B19"
+                    iconTintHex = "#FDE68A"
+                    nameHex = "#FFFBEB"
+                    stateHex = "#FCD34D"
+                    dotHex = "#FCD34D"
+                } else if (on) {
+                    bgHex = "#1C2A3F"
+                    strokeHex = "#668AB4F8"
+                    badgeHex = "#2A3E5C"
+                    iconTintHex = "#A8C7FA"
+                    nameHex = "#EEF3FC"
+                    stateHex = "#8AB4F8"
+                    dotHex = "#8AB4F8"
+                } else {
+                    bgHex = "#202633"
+                    strokeHex = "#2D3648"
+                    badgeHex = "#2A3242"
+                    iconTintHex = "#7E8DA6"
+                    nameHex = "#C4D0E3"
+                    stateHex = "#7E8DA6"
+                    dotHex = "#434E63"
+                }
+
+                tileCard.setCardBackgroundColor(Color.parseColor(bgHex))
+                tileCard.strokeWidth = ((if (on) 1.5f else 1f) * d).toInt()
+                tileCard.strokeColor = Color.parseColor(strokeHex)
+                iconBadgeBg.setColor(Color.parseColor(badgeHex))
+                iconView.setColorFilter(Color.parseColor(iconTintHex))
+                dotBg.setColor(Color.parseColor(dotHex))
+                nameTv.setTextColor(Color.parseColor(nameHex))
+                stateTv.setTextColor(Color.parseColor(stateHex))
+                stateTv.text = if (on) "On" else "Off"
+            }
+
+            applyTileState()
+
+            val inner = LinearLayout(context).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding((12 * d).toInt(), (11 * d).toInt(), (12 * d).toInt(), (11 * d).toInt())
+                addView(LinearLayout(context).apply {
                     orientation = LinearLayout.HORIZONTAL
                     gravity = Gravity.CENTER_VERTICAL
-                    layoutParams = LinearLayout.LayoutParams(-1, -2).apply { topMargin = (6 * d).toInt() }
-                    val tvTherm = TextView(context).apply {
-                        text = "${dev.name} • ${targetC}°C"
-                        typeface = tf
-                        paint.isFakeBoldText = true
-                        textSize = 15.5f
-                        fontFeatureSettings = "tnum"
-                        setTextColor(Color.parseColor("#A8C7FA"))
-                        layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
-                    }
-                    addView(tvTherm)
-                    listOf(-1, +1).forEach { delta ->
-                        addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-                            text = if (delta < 0) "-" else "+"
-                            minWidth = (44 * d).toInt()
-                            cornerRadius = (999 * d).toInt()
-                            layoutParams = LinearLayout.LayoutParams(-2, (40 * d).toInt()).apply {
-                                if (delta < 0) marginEnd = (6 * d).toInt()
-                            }
-                            setOnClickListener {
-                                TactileAudioEngine.playClick()
-                                targetC = (targetC + delta).coerceIn(15, 28)
-                                tvTherm.text = "${dev.name} • ${targetC}°C"
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    com.kyle.kitchenhub.data.SmartHomeRepository.setThermostat(context, dev, targetC)
-                                }
-                            }
-                        })
+                    addView(iconView)
+                    addView(View(context).apply { layoutParams = LinearLayout.LayoutParams(0, 0, 1f) })
+                    addView(statusDot)
+                })
+                addView(nameTv)
+                addView(stateTv)
+            }
+            tileCard.addView(inner)
+
+            tileCard.setOnClickListener {
+                TactileAudioEngine.playClick()
+                val next = !dev.isOn
+                dev.isOn = next
+                applyTileState()
+                updateSummary()
+                CoroutineScope(Dispatchers.Main).launch {
+                    val ok = runCatching {
+                        com.kyle.kitchenhub.data.SmartHomeRepository.toggleDevice(context, dev, next)
+                    }.getOrDefault(false)
+                    if (!ok) {
+                        dev.isOn = !next
+                        applyTileState()
+                        updateSummary()
+                        Toast.makeText(context, "Could not update ${dev.name}", Toast.LENGTH_SHORT).show()
                     }
                 }
-            } else {
-                LinearLayout(context).apply {
-                    orientation = LinearLayout.HORIZONTAL
-                    gravity = Gravity.CENTER_VERTICAL
-                    setPadding(0, (4 * d).toInt(), 0, (4 * d).toInt())
+            }
+            return tileCard
+        }
+
+        fun buildClimateTile(dev: com.kyle.kitchenhub.data.SmartHomeDevice): View {
+            var targetC = dev.targetTempC
+            val tile = MaterialCardView(context).apply {
+                radius = 22f * d
+                cardElevation = 0f
+                setCardBackgroundColor(Color.parseColor("#1C2A3F"))
+                strokeWidth = (1 * d).toInt()
+                strokeColor = Color.parseColor("#354866")
+                layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = (10 * d).toInt() }
+            }
+            val tvTherm = TextView(context).apply {
+                text = "Target • ${targetC}°C"
+                typeface = tf
+                textSize = 13f
+                fontFeatureSettings = "tnum"
+                setTextColor(Color.parseColor("#A8C7FA"))
+            }
+            val row = LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding((12 * d).toInt(), (11 * d).toInt(), (12 * d).toInt(), (11 * d).toInt())
+                addView(ImageView(context).apply {
+                    setImageResource(R.drawable.ic_thermostat_rounded)
+                    setColorFilter(Color.parseColor("#A8C7FA"))
+                    val pad = (8 * d).toInt()
+                    setPadding(pad, pad, pad, pad)
+                    background = GradientDrawable().apply {
+                        shape = GradientDrawable.OVAL
+                        setColor(Color.parseColor("#2A3E5C"))
+                    }
+                    layoutParams = LinearLayout.LayoutParams((36 * d).toInt(), (36 * d).toInt()).apply {
+                        marginEnd = (10 * d).toInt()
+                    }
+                })
+                addView(LinearLayout(context).apply {
+                    orientation = LinearLayout.VERTICAL
+                    layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
                     addView(TextView(context).apply {
                         text = dev.name
                         typeface = tf
-                        textSize = 15.5f
+                        paint.isFakeBoldText = true
+                        textSize = 14f
                         setTextColor(Color.parseColor("#EEF3FC"))
-                        layoutParams = LinearLayout.LayoutParams(0, -2, 1f)
+                        maxLines = 1
+                        ellipsize = TextUtils.TruncateAt.END
                     })
-                    addView(MaterialSwitch(context).apply {
-                        isChecked = dev.isOn
-                        setOnCheckedChangeListener { _, checked ->
+                    addView(tvTherm)
+                })
+                listOf(-1, +1).forEach { delta ->
+                    addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                        text = if (delta < 0) "−" else "+"
+                        minWidth = (40 * d).toInt()
+                        minimumWidth = (40 * d).toInt()
+                        cornerRadius = (999 * d).toInt()
+                        layoutParams = LinearLayout.LayoutParams((42 * d).toInt(), (38 * d).toInt()).apply {
+                            if (delta < 0) marginEnd = (6 * d).toInt()
+                        }
+                        setOnClickListener {
                             TactileAudioEngine.playClick()
+                            targetC = (targetC + delta).coerceIn(15, 28)
+                            tvTherm.text = "Target • ${targetC}°C"
                             CoroutineScope(Dispatchers.Main).launch {
-                                com.kyle.kitchenhub.data.SmartHomeRepository.toggleDevice(context, dev, checked)
+                                com.kyle.kitchenhub.data.SmartHomeRepository.setThermostat(context, dev, targetC)
                             }
                         }
                     })
                 }
             }
+            tile.addView(row)
+            return tile
         }
 
-        fun load() {
+        lateinit var load: () -> Unit
+
+        fun renderHeaderActions(connected: Boolean) {
+            headerActions.removeAllViews()
+            if (!connected) return
+            headerActions.addView(ImageView(context).apply {
+                setImageResource(R.drawable.ic_refresh_rounded)
+                setColorFilter(Color.parseColor("#A8C7FA"))
+                val pad = (8 * d).toInt()
+                setPadding(pad, pad, pad, pad)
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Color.parseColor("#222938"))
+                    setStroke((1 * d).toInt(), Color.parseColor("#323C50"))
+                }
+                layoutParams = LinearLayout.LayoutParams((34 * d).toInt(), (34 * d).toInt()).apply {
+                    marginEnd = (6 * d).toInt()
+                }
+                setOnClickListener {
+                    TactileAudioEngine.playClick()
+                    subtitleView.text = "Refreshing…"
+                    load()
+                }
+            })
+            headerActions.addView(TextView(context).apply {
+                text = "Home"
+                typeface = tf
+                paint.isFakeBoldText = true
+                textSize = 12.5f
+                gravity = Gravity.CENTER
+                setTextColor(Color.parseColor("#A8C7FA"))
+                setPadding((12 * d).toInt(), 0, (12 * d).toInt(), 0)
+                background = GradientDrawable().apply {
+                    cornerRadius = 999f * d
+                    setColor(Color.parseColor("#222938"))
+                    setStroke((1 * d).toInt(), Color.parseColor("#323C50"))
+                }
+                layoutParams = LinearLayout.LayoutParams(-2, (34 * d).toInt())
+                setOnClickListener {
+                    TactileAudioEngine.playClick()
+                    val home = context.packageManager.getLaunchIntentForPackage("com.google.android.apps.chromecast.app")
+                    if (home != null) context.startActivity(home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                    else Toast.makeText(context, "Google Home not installed", Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+
+        load = {
             CoroutineScope(Dispatchers.Main).launch {
                 val devices = runCatching {
                     com.kyle.kitchenhub.data.SmartHomeRepository.fetchDevices(context)
                 }.getOrDefault(emptyList())
+                currentDevices = devices
                 devicesContainer.removeAllViews()
-                footer.removeAllViews()
+                updateSummary()
+                renderHeaderActions(devices.isNotEmpty())
+
                 if (devices.isEmpty()) {
-                    devicesContainer.addView(TextView(context).apply {
-                        text = "Connect Google Home to control your lights, plugs and thermostats."
-                        typeface = tf
-                        textSize = 14f
-                        setTextColor(Color.parseColor("#9EB0CE"))
-                    })
-                    footer.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-                        text = "Connect Google Home"
-                        isAllCaps = false
-                        cornerRadius = (999 * d).toInt()
-                        layoutParams = LinearLayout.LayoutParams(-1, (48 * d).toInt())
-                        setOnClickListener {
-                            TactileAudioEngine.playClick()
-                            CoroutineScope(Dispatchers.Main).launch {
-                                val msg = com.kyle.kitchenhub.data.GoogleHomeBridge.requestPermissions(context)
-                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                load()
+                    devicesContainer.addView(LinearLayout(context).apply {
+                        orientation = LinearLayout.VERTICAL
+                        gravity = Gravity.CENTER_HORIZONTAL
+                        setPadding((8 * d).toInt(), (24 * d).toInt(), (8 * d).toInt(), (8 * d).toInt())
+                        addView(ImageView(context).apply {
+                            setImageResource(R.drawable.ic_home_rounded)
+                            setColorFilter(Color.parseColor("#A8C7FA"))
+                            val pad = (14 * d).toInt()
+                            setPadding(pad, pad, pad, pad)
+                            background = GradientDrawable().apply {
+                                shape = GradientDrawable.OVAL
+                                setColor(Color.parseColor("#24324A"))
                             }
-                        }
+                            layoutParams = LinearLayout.LayoutParams((56 * d).toInt(), (56 * d).toInt()).apply {
+                                bottomMargin = (14 * d).toInt()
+                            }
+                        })
+                        addView(TextView(context).apply {
+                            text = "Connect Google Home"
+                            typeface = tf
+                            paint.isFakeBoldText = true
+                            textSize = 16.5f
+                            setTextColor(Color.parseColor("#EEF3FC"))
+                            gravity = Gravity.CENTER
+                            layoutParams = LinearLayout.LayoutParams(-2, -2).apply { bottomMargin = (6 * d).toInt() }
+                        })
+                        addView(TextView(context).apply {
+                            text = "Control your lights, plugs, speakers, and thermostats right from your kitchen display."
+                            typeface = tf
+                            textSize = 13.5f
+                            setTextColor(Color.parseColor("#8EA4C8"))
+                            gravity = Gravity.CENTER
+                            layoutParams = LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = (18 * d).toInt() }
+                        })
+                        addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
+                            text = "Connect Google Home"
+                            isAllCaps = false
+                            cornerRadius = (999 * d).toInt()
+                            layoutParams = LinearLayout.LayoutParams(-1, (48 * d).toInt())
+                            setOnClickListener {
+                                TactileAudioEngine.playClick()
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    val msg = com.kyle.kitchenhub.data.GoogleHomeBridge.requestPermissions(context)
+                                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                                    load()
+                                }
+                            }
+                        })
                     })
                 } else {
-                    // Group by device type: lights, plugs/switches, climate
-                    listOf("light", "switch", "climate").forEach { kind ->
-                        devices.filter { it.kind == kind }.forEach { devicesContainer.addView(deviceRow(it)) }
-                    }
-                    footer.addView(MaterialButton(context, null, com.google.android.material.R.attr.materialButtonTonalStyle).apply {
-                        text = "Open Google Home"
-                        isAllCaps = false
-                        cornerRadius = (999 * d).toInt()
-                        layoutParams = LinearLayout.LayoutParams(-1, (48 * d).toInt())
-                        setOnClickListener {
-                            TactileAudioEngine.playClick()
-                            val home = context.packageManager.getLaunchIntentForPackage("com.google.android.apps.chromecast.app")
-                            if (home != null) context.startActivity(home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                            else Toast.makeText(context, "Google Home not installed", Toast.LENGTH_SHORT).show()
+                    val toggleables = devices.filter { it.kind == "light" } + devices.filter { it.kind == "switch" }
+                    toggleables.chunked(2).forEach { pair ->
+                        val row = LinearLayout(context).apply {
+                            orientation = LinearLayout.HORIZONTAL
+                            clipChildren = false
+                            clipToPadding = false
+                            layoutParams = LinearLayout.LayoutParams(-1, -2).apply {
+                                bottomMargin = (10 * d).toInt()
+                            }
                         }
-                    })
+                        pair.forEachIndexed { idx, dev ->
+                            val tile = buildToggleTile(dev).apply {
+                                layoutParams = LinearLayout.LayoutParams(0, -2, 1f).apply {
+                                    if (idx == 0) marginEnd = (10 * d).toInt()
+                                }
+                            }
+                            row.addView(tile)
+                        }
+                        if (pair.size == 1) {
+                            row.addView(View(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+                            })
+                        }
+                        devicesContainer.addView(row)
+                    }
+                    devices.filter { it.kind == "climate" }.forEach { dev ->
+                        devicesContainer.addView(buildClimateTile(dev))
+                    }
                 }
             }
         }
