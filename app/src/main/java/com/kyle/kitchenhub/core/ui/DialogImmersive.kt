@@ -4,14 +4,33 @@ import android.app.Dialog
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import java.lang.ref.WeakReference
 import kotlin.math.abs
 
 /**
  * Prevents Android from revealing the navigation or status bar when a Dialog window opens
- * over an immersive fullscreen launcher, and provides left-edge swipe-back dismissal.
+ * over an immersive fullscreen launcher, provides left-edge swipe-back dismissal,
+ * and tracks open dialogs so idle/clock transitions can dismiss them cleanly.
  */
 object DialogImmersive {
+    private val activeDialogs = mutableListOf<WeakReference<Dialog>>()
+
+    fun dismissAll() {
+        val it = activeDialogs.iterator()
+        while (it.hasNext()) {
+            val d = it.next().get()
+            if (d == null) {
+                it.remove()
+            } else {
+                if (d.isShowing) runCatching { d.dismiss() }
+                it.remove()
+            }
+        }
+    }
+
     fun show(dialog: Dialog, superShow: () -> Unit) {
+        activeDialogs.removeAll { it.get() == null || it.get() === dialog }
+        activeDialogs.add(WeakReference(dialog))
         dialog.window?.setFlags(
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE

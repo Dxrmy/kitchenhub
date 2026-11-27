@@ -94,7 +94,8 @@ class WeatherEffectsShaderView @JvmOverloads constructor(
                     float rays = 0.5 + 0.5 * sin(ang * 8.0);
                     float glow = exp(-r * 2.2) * (0.55 + 0.45 * rays);
                     vec3 col = mix(vec3(1.0, 0.82, 0.32), vec3(1.0, 0.65, 0.2), r);
-                    gl_FragColor = vec4(col, clamp(glow * 0.62, 0.0, 0.68) * edgeFade);
+                    float a = clamp(glow * 0.62, 0.0, 0.68) * edgeFade;
+                    gl_FragColor = vec4(col * a, a);
                 } else if (uMode >= 1.5 && uMode < 2.5) {
                     // Rain / Storm: multi-layer tilted rain streaks + atmospheric mist
                     vec2 ruv = vec2(p.x + p.y * 0.18, p.y);
@@ -105,7 +106,8 @@ class WeatherEffectsShaderView @JvmOverloads constructor(
                     float streak = smoothstep(0.14, 0.0, xCell) * smoothstep(0.0, 0.25, yShift) * smoothstep(0.55, 0.25, yShift);
                     float mist = fbm(p * 2.5 + vec2(uTime * 0.08, 0.0)) * 0.32;
                     vec3 col = vec3(0.52, 0.80, 1.0) * (streak * 0.85 + 0.45);
-                    gl_FragColor = vec4(col, clamp(streak * 0.55 + mist, 0.0, 0.65) * edgeFade);
+                    float a = clamp(streak * 0.55 + mist, 0.0, 0.65) * edgeFade;
+                    gl_FragColor = vec4(col * a, a);
                 } else if (uMode >= 2.5) {
                     // Snow: drifting soft snow particles + winter fog
                     float snow = 0.0;
@@ -120,15 +122,18 @@ class WeatherEffectsShaderView @JvmOverloads constructor(
                         snow += smoothstep(0.18, 0.04, d) * step(0.65, rnd);
                     }
                     float haze = fbm(p * 2.0 + vec2(uTime * 0.05, 0.0)) * 0.28;
-                    gl_FragColor = vec4(vec3(0.92, 0.96, 1.0), clamp(snow * 0.52 + haze, 0.0, 0.62) * edgeFade);
+                    vec3 col = vec3(0.92, 0.96, 1.0);
+                    float a = clamp(snow * 0.52 + haze, 0.0, 0.62) * edgeFade;
+                    gl_FragColor = vec4(col * a, a);
                 } else {
                     // Cloudy / Partly Cloudy: full-width layered FBM drifting clouds + soft fade-out
                     float c1 = fbm(p * 1.45 + vec2(uTime * 0.08, -uTime * 0.015));
                     float c2 = fbm(p * 2.60 - vec2(uTime * 0.05, uTime * 0.01) + vec2(4.2, 1.7));
                     float c = c1 * 0.65 + c2 * 0.35;
-                    float cloud = smoothstep(0.28, 0.66, c);
-                    vec3 col = mix(vec3(0.55, 0.74, 0.98), vec3(0.88, 0.94, 1.0), cloud);
-                    gl_FragColor = vec4(col, clamp(cloud * 0.42, 0.0, 0.46) * edgeFade);
+                    float cloud = smoothstep(0.22, 0.60, c);
+                    vec3 col = mix(vec3(0.55, 0.74, 0.98), vec3(0.90, 0.95, 1.0), cloud);
+                    float a = clamp(cloud * 0.56, 0.0, 0.60) * edgeFade;
+                    gl_FragColor = vec4(col * a, a);
                 }
             }
         """

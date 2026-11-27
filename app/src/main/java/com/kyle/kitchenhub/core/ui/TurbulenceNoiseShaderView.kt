@@ -92,7 +92,7 @@ class TurbulenceNoiseShaderView @JvmOverloads constructor(
                 float cloud = smoothstep(0.26, 0.78, n2);
                 vec3 col = uColor * (0.65 + 0.35 * n1);
                 float alpha = cloud * 0.30;
-                gl_FragColor = vec4(col, alpha);
+                gl_FragColor = vec4(col * alpha, alpha);
             }
         """
     }

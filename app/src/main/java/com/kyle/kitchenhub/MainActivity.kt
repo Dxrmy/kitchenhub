@@ -707,6 +707,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun enterStandByClock() {
+        com.kyle.kitchenhub.core.ui.DialogImmersive.dismissAll()
         if (::b.isInitialized && b.mainPager.currentItem != 0) {
             b.mainPager.setCurrentItem(0, true)
         }

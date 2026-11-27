@@ -74,7 +74,12 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         }
 
         val effectsView = com.kyle.kitchenhub.core.ui.WeatherEffectsShaderView(context).apply {
-            layoutParams = FrameLayout.LayoutParams(-1, dp(300))
+            layoutParams = FrameLayout.LayoutParams(-1, dp(260))
+        }
+        val conditionFxView = WeatherConditionEffectsView(context).apply {
+            layoutParams = FrameLayout.LayoutParams(-1, dp(240))
+            isClickable = false
+            isFocusable = false
         }
 
         val rootWrap = LinearLayout(context).apply {
@@ -86,7 +91,7 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         val topBar = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(24), dp(18), dp(20), dp(8))
+            setPadding(dp(24), dp(14), dp(20), dp(4))
         }
         val tvCity = TextView(context).apply {
             text = cfg.locationName
@@ -145,8 +150,9 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         bodyHost.addView(loaderWrap)
 
         rootWrap.addView(bodyHost)
-        rootFrame.addView(rootWrap)
         rootFrame.addView(effectsView)
+        rootFrame.addView(conditionFxView)
+        rootFrame.addView(rootWrap)
         rootCard.addView(rootFrame)
         setContentView(rootCard)
         com.kyle.kitchenhub.core.ui.DialogImmersive.attachEdgeSwipeDismiss(this, rootCard)
@@ -168,6 +174,9 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
                 m3Loader.animate().alpha(0f).scaleX(0.4f).scaleY(0.4f).setDuration(260L).start()
             } else {
                 effectsView.setCondition(detail.condition)
+                conditionFxView.setCondition(detail.condition)
+                effectsAnimator?.cancel()
+                effectsAnimator = conditionFxView.startAnim()
                 populateContent(content, detail, tf)
                 loaderWrap.animate()
                     .alpha(0f)
@@ -186,19 +195,19 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         val hero = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(0, dp(4), 0, dp(18))
+            setPadding(0, dp(2), 0, dp(10))
         }
         hero.addView(TextView(context).apply {
             text = w.condition
             typeface = tf
-            textSize = 19f
+            textSize = 18f
             setTextColor(Color.parseColor("#B8CCF0"))
         })
         hero.addView(TextView(context).apply {
             text = "${w.tempDisplay}${w.unitSym}"
             typeface = tf
             paint.isFakeBoldText = true
-            textSize = 68f
+            textSize = 56f
             includeFontPadding = false
             setTextColor(Color.parseColor("#FFFFFF"))
         })
@@ -219,7 +228,7 @@ class WeatherDetailDialog(context: Context) : Dialog(context) {
         dailyInner.addView(sectionHeader("Daily forecast", tf))
         val chartRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(-1, dp(190)).apply { topMargin = dp(10) }
+            layoutParams = LinearLayout.LayoutParams(-1, dp(168)).apply { topMargin = dp(8) }
         }
         chartRow.addView(DailyChartView(context, w.daily, tf).apply {
             layoutParams = LinearLayout.LayoutParams(-1, -1)
