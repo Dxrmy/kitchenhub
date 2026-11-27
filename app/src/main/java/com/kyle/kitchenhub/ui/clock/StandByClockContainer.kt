@@ -425,7 +425,7 @@ class StandByClockContainer @JvmOverloads constructor(
             }
             3 -> {
                 title.text = "WEATHER"
-                body.text = fullClock.weatherText.ifBlank { "Solihull, UK" }
+                body.text = fullClock.weatherText.ifBlank { ConfigRepository.get(context).locationName }
             }
             else -> {
                 title.text = "FAMILY CALENDAR"

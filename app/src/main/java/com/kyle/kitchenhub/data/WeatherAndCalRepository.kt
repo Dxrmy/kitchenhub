@@ -100,7 +100,7 @@ object WeatherAndCalRepository {
             val unit = if (cfg.useFahrenheit) "fahrenheit" else "celsius"
             val sym = if (cfg.useFahrenheit) "°F" else "°C"
             val url = "https://api.open-meteo.com/v1/forecast?latitude=${cfg.latitude}&longitude=${cfg.longitude}" +
-                "&current=temperature_2m,relative_humidity_2m,dew_point_2m,weather_code,surface_pressure,wind_speed_10m,uv_index,visibility" +
+                "&current=temperature_2m,relative_humidity_2m,dew_point_2m,weather_code,pressure_msl,wind_speed_10m,uv_index,visibility" +
                 "&hourly=temperature_2m,weather_code,precipitation_probability" +
                 "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,wind_speed_10m_max,sunrise,sunset" +
                 "&timezone=auto&temperature_unit=$unit"
@@ -115,15 +115,15 @@ object WeatherAndCalRepository {
             val code = cur.optInt("weather_code", 0)
             val humidity = cur.optInt("relative_humidity_2m", 0)
             val dew = cur.optDouble("dew_point_2m", 0.0).toInt()
-            val pressure = cur.optDouble("surface_pressure", 1013.0).toInt()
+            val pressure = cur.optDouble("pressure_msl", 1013.0).toInt()
             val wind = cur.optDouble("wind_speed_10m", 0.0).toInt()
             val uv = cur.optDouble("uv_index", 0.0).toInt()
             val visKm = (cur.optDouble("visibility", 10000.0) / 1000.0).toInt().coerceAtLeast(1)
 
             val dailyObj = root.optJSONObject("daily")
             val dailyList = mutableListOf<DailyForecast>()
-            var sunriseStr = "06:30"
-            var sunsetStr = "19:30"
+            var sunriseStr = "--:--"
+            var sunsetStr = "--:--"
             if (dailyObj != null) {
                 val dates = dailyObj.optJSONArray("time")
                 val codes = dailyObj.optJSONArray("weather_code")

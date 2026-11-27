@@ -278,22 +278,20 @@ class FuchsiaCarouselAdapter(
             b.weatherHeroShader.setCondition(w.condition)
 
             b.forecastStrip.removeAllViews()
-            val inf = LayoutInflater.from(context)
-            val days = w.forecast.ifEmpty {
-                listOf(
-                    com.kyle.kitchenhub.data.DailyForecast("Today", w.condition, "13° / 6°"),
-                    com.kyle.kitchenhub.data.DailyForecast("Fri", "Cloudy", "12° / 5°"),
-                    com.kyle.kitchenhub.data.DailyForecast("Sat", "Clear", "15° / 7°")
-                )
-            }
-            days.forEach { d ->
-                val row = ItemForecastDayBinding.inflate(inf, b.forecastStrip, false)
-                row.tvDayName.typeface = FontCache.plusJakarta(context)
-                row.tvDayHiLo.typeface = FontCache.plusJakarta(context)
-                row.tvDayName.text = d.dayLabel
-                row.tvDayHiLo.text = d.hiLo
-                row.ivDayIcon.setImageResource(weatherIconFor(d.condition))
-                b.forecastStrip.addView(row.root)
+            if (w.forecast.isEmpty()) {
+                b.forecastStrip.visibility = View.GONE
+            } else {
+                b.forecastStrip.visibility = View.VISIBLE
+                val inf = LayoutInflater.from(context)
+                w.forecast.forEach { d ->
+                    val row = ItemForecastDayBinding.inflate(inf, b.forecastStrip, false)
+                    row.tvDayName.typeface = FontCache.plusJakarta(context)
+                    row.tvDayHiLo.typeface = FontCache.plusJakarta(context)
+                    row.tvDayName.text = d.dayLabel
+                    row.tvDayHiLo.text = d.hiLo
+                    row.ivDayIcon.setImageResource(weatherIconFor(d.condition))
+                    b.forecastStrip.addView(row.root)
+                }
             }
         }
     }
