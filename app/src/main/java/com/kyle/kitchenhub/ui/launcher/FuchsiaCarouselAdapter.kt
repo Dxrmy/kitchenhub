@@ -928,6 +928,7 @@ class FuchsiaCarouselAdapter(
         b.tvFeatureSubtitle.typeface = FontCache.plusJakarta(context)
         b.tvFeatureTitle.text = item.title
         b.tvFeatureSubtitle.text = item.subtitle
+        b.btnFeatureAction.visibility = if (item.actionText.isBlank()) View.GONE else View.VISIBLE
         b.btnFeatureAction.text = item.actionText
         AppIconResolver.applyTo(b.ivFeatureIcon, item.pkg, item.fallbackIcon)
 

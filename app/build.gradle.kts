@@ -66,7 +66,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.viewpager2:viewpager2:1.1.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("com.microsoft.onnxruntime:onnxruntime-android:1.19.2")
     implementation("com.google.android.gms:play-services-home:17.12.0")
     implementation("com.google.android.gms:play-services-home-types:17.12.0")
@@ -75,9 +75,9 @@ dependencies {
 configurations.all {
     resolutionStrategy {
         force(
-            "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1",
-            "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1",
-            "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1"
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3",
+            "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
         )
     }
 }

@@ -148,14 +148,14 @@ class NestHubPagerAdapter(
                     R.drawable.ic_app_ytmusic,
                     "YouTube Music",
                     "Browse kitchen playlists & mixes",
-                    "Open YouTube Music"
+                    ""
                 ) { launchPkg("com.google.android.apps.youtube.music", "YouTube Music") }
                 val ytCard = FuchsiaCardItem.FeatureCard(
                     "com.google.android.youtube",
                     R.drawable.ic_app_youtube,
                     "YouTube",
                     "Ad-free recipes, news & video",
-                    "Open YouTube"
+                    ""
                 ) {
                     val yt = context.packageManager.getLaunchIntentForPackage("com.google.android.youtube")
                         ?: context.packageManager.getLaunchIntentForPackage("com.google.android.youtube.tv")

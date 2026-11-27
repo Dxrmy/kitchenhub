@@ -105,6 +105,9 @@ class MainActivity : AppCompatActivity() {
 
     private val idleHandler = Handler(Looper.getMainLooper())
     private val idleRunnable = Runnable { enterStandByClock() }
+    private val deepDimRunnable = Runnable {
+        window.attributes = window.attributes.apply { screenBrightness = 0.08f }
+    }
     private val hideTopBarRunnable = Runnable { setTopBarVisible(false) }
     private val clockFmt = SimpleDateFormat("HH:mm", Locale.getDefault())
     private val clockTick = object : Runnable {
@@ -353,7 +356,38 @@ class MainActivity : AppCompatActivity() {
                 val curBri = runCatching { Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS) }.getOrDefault(165)
                 val step = ((curBri * 10f) / 255f).roundToInt().coerceIn(1, 10)
                 bb.bottomInlineSlider.value = step.toFloat()
+                val autoMode = runCatching {
+                    Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE) ==
+                        Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                }.getOrDefault(false)
+                bb.ivBottomSliderIcon.setColorFilter(
+                    Color.parseColor(if (autoMode) "#A8C7FA" else "#FFFFFF")
+                )
                 bb.bottomSliderCard.visibility = View.VISIBLE
+            }
+        }
+
+        bb.ivBottomSliderIcon.setOnClickListener {
+            if (activeBottomSliderMode == "BRI" && Settings.System.canWrite(this)) {
+                TactileAudioEngine.playClick()
+                val curMode = runCatching {
+                    Settings.System.getInt(contentResolver, Settings.System.SCREEN_BRIGHTNESS_MODE)
+                }.getOrDefault(0)
+                val nextAuto = curMode != Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                Settings.System.putInt(
+                    contentResolver,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    if (nextAuto) Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
+                    else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                )
+                bb.ivBottomSliderIcon.setColorFilter(
+                    Color.parseColor(if (nextAuto) "#A8C7FA" else "#FFFFFF")
+                )
+                android.widget.Toast.makeText(
+                    this,
+                    if (nextAuto) "Auto Brightness: ON" else "Auto Brightness: OFF",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -658,8 +692,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun resetIdleTimer() {
         idleHandler.removeCallbacks(idleRunnable)
+        idleHandler.removeCallbacks(deepDimRunnable)
+        if (window.attributes.screenBrightness >= 0f) {
+            window.attributes = window.attributes.apply {
+                screenBrightness = android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
+        }
         val sec = ConfigRepository.get(this).idleTimeoutSec
-        if (sec > 0) idleHandler.postDelayed(idleRunnable, sec * 1000L)
+        if (sec > 0) {
+            idleHandler.postDelayed(idleRunnable, sec * 1000L)
+            idleHandler.postDelayed(deepDimRunnable, (sec + 30) * 1000L)
+        }
     }
 
     private fun enterStandByClock() {
